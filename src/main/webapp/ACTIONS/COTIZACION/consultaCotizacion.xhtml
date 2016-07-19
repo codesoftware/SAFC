@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=yes" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</h:head>
+<body>
+	<ui:composition template="/TEMPLATE/template.xhtml">
+		<ui:define name="content">
+			<script type="text/javascript">
+				function muestraCotizacion(){
+					var banderaFacturacion = document.getElementsByClassName("banderaPdfPedido")[0].value;
+					var uno = document.getElementById('formPrincipal:banderaPdf').value;
+					if (banderaFacturacion.trim() == 'Ok') {
+						var idCotiza = document
+								.getElementsByClassName("idPdfAbrirCot")[0].value;
+						window.open("/SAFC/resources/images/cotizacion/cotiza_"+idCotiza
+								+ ".pdf", "_blank",
+								"resizable,scrollbars");
+					}
+					
+				}
+			</script>
+			<h:form id="formPrincipal">
+				<p:inputText styleClass="idPdfAbrirCot" value="#{consultaCotizacionBean.idCotizacion}" style="display:none" id="idPdfAbrirCot"> </p:inputText>
+				<p:inputText styleClass="banderaPdfPedido" value="#{consultaCotizacionBean.banderaPDF}" id="banderaPdf" style="display:none;" />
+				<p:growl id="messages" sticky="false" showDetail="true" life="20000" />
+				<div class="row">
+					<div class="col-md-1 col-sm-0 col-xs-0"></div>
+					<div class="col-md-10 col-sm-12 col-xs-12 text-center" style="border: 1px solid #D6E3E2; padding-left: 0px; padding-right: 0px;">
+						<div class="panel">
+							<div class="col-md-12 col-xs-12 col-sm-12 alert alert-success text-center">
+								<h3>Filtro de Cotización</h3>
+							</div>
+							<div class="col-md-2 col-xs-3 col-sm-3">
+								<div class="form-group">
+									<p:commandLink actionListener="#{consultaCotizacionBean.buscaClientes}" update=":searchClients:tablaClientes" onclick="PF('searchCl').show();" id="botonConsCli">
+										<p:graphicImage name="images/searchClientNew.png" width="50" height="50" />
+										<p:spacer height="0" width="10" />
+									</p:commandLink>
+									<p:tooltip id="toolTipConsClien" for="botonConsCli" value="Consulta de Clientes" trackMouse="true" />
+								</div>
+							</div>
+							<div class="col-md-3 col-xs-9 col-sm-9">
+								Cliente:
+								<h:outputLabel value="#{consultaCotizacionBean.clienteSelected.apellidos}" />
+								&nbsp;
+								<h:outputLabel value="#{consultaCotizacionBean.clienteSelected.nombres}" />
+							</div>
+							<div class="col-md-2 col-xs-6 col-sm-6">
+								Nit:
+								<h:outputLabel value="#{consultaCotizacionBean.clienteSelected.cedula}" />
+							</div>
+							<div class="col-md-4 col-xs-12 col-sm-12">
+								<div class="form-group">
+									<p:commandButton styleClass="GreenButton" value="Consultar" actionListener="#{consultaCotizacionBean.consultaCotizaciones}" update=":formConsulta:tablaconsulta" />
+								</div>
+							</div>
+						</div>
+						<div class="col-md-1 col-sm-0 col-xs-12"></div>
+					</div>
+				</div>
+			</h:form>
+			<br/>
+			<br/>
+			<h:form id="formConsulta">
+				<div class="row">
+					<div class="col-md-1 col-sm-0 col-xs-0"></div>
+					<div class="col-md-10 col-sm-0 col-xs-0">
+						<p:dataTable value="#{consultaCotizacionBean.resultCotiza}" var="cotiza" reflow="true" paginator="true" rows="10" id="tablaconsulta">
+							<p:column headerText="fecha" width="15%">
+								<h:outputText value="#{cotiza.fecha}" converterId="co.com.codesoftware.converter.xmlDatetoDateConverter"></h:outputText>
+							</p:column>
+							<p:column headerText="Sede.">
+								<h:outputLabel value="#{cotiza.sede.name}"></h:outputLabel>
+							</p:column>
+							<p:column headerText="Cliente.">
+								<h:outputLabel value="#{cotiza.cliente.apellidos}" />
+								&nbsp;
+								<h:outputLabel value="#{cotiza.cliente.nombres}" />
+							</p:column>
+							<p:column headerText="Descargar" width="10%">
+								<p:commandButton value="DESC." actionListener="#{consultaCotizacionBean.generaPdfCotizacion(cotiza.id)}" update=":formPrincipal"  oncomplete="muestraCotizacion()" />								
+							</p:column>
+							<p:column headerText="Accion" width="10%">
+								<p:commandButton value="ACTIVAR." actionListener="#{consultaCotizacionBean.activoCotizacion(cotiza)}" update=":formPrincipal:messages"  />
+							</p:column>
+						</p:dataTable>
+					</div>
+					<div class="col-md-1 col-sm-0 col-xs-0"></div>
+				</div>
+			</h:form>
+			<h:form id="searchClients">
+				<p:dialog header="Consulta de clientes" widgetVar="searchCl" modal="true" position="center" closeOnEscape="true">
+					<p:dataTable var="listClient" value="#{consultaCotizacionBean.clientes}" reflow="true" rows="5" widgetVar="clienteTable" paginator="true" emptyMessage="No hay clientes que coincidan con la busqueda" filteredValue="#{consultaCotizacionBean.clientesFilter}" id="tablaClientes">
+						<f:facet name="header">
+							<p:outputPanel>
+								<h:outputText value="Busqueda de clientes:" />
+								<p:inputText id="globalFilter" onkeyup="PF('clienteTable').filter()" style="width:150px" placeholder="Ingrese palabra" />
+							</p:outputPanel>
+						</f:facet>
+						<p:column headerText="Cedula" style="text-align: center" filterBy="#{listClient.cedula}">
+							<h:outputText value="#{listClient.cedula}" />
+						</p:column>
+
+						<p:column headerText="Nombres" filterBy="#{listClient.nombres}">
+							<h:outputText value="#{listClient.nombres}" />
+						</p:column>
+
+						<p:column headerText="Dirección" filterBy="#{listClient.direccion}">
+							<h:outputText value="#{listClient.direccion}" />
+						</p:column>
+						<p:column headerText="Telefono" filterBy="#{listClient.telefono}">
+							<h:outputText value="#{listClient.telefono}" />
+						</p:column>
+						<p:column headerText="Adicionar" style="width:100px;text-align: center">
+							<p:commandButton icon="ui-icon-search" title="Seleccion" ajax="true" oncomplete="PF('searchCl').hide()" update=":formPrincipal" actionListener="#{consultaCotizacionBean.seleccionarCliente(listClient)}">
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+				</p:dialog>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+
+</body>
+</html>

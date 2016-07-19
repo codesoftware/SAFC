@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui"
+xmlns:pe="http://primefaces.org/ui/extensions">
+<h:head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=yes" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</h:head>
+<body>
+	<ui:composition template="/TEMPLATE/template.xhtml">
+		<ui:define name="content">
+			<h:form id="formPrincipal">
+				<p:growl id="messages" sticky="false" showDetail="true" life="20000" autoUpdate="true" />
+				<div class="row">
+					<div class="col-md-1 col-sm-0 col-xs-0"></div>
+					<div class="col-md-10 col-sm-12 col-xs-12 text-center" style="border: 1px solid #D6E3E2; padding-left: 0px; padding-right: 0px;">
+						<div class="panel">
+							<div class="col-md-12 col-xs-12 col-sm-12 alert alert-success text-center">
+								<h3>Filtro de Remision</h3>
+							</div>
+							<div class="col-md-2 col-xs-3 col-sm-3">
+								<div class="form-group">
+									<p:commandLink actionListener="#{remisionBean.buscaClientes}" update=":searchClients:tablaClientes" onclick="PF('searchCl').show();" id="botonConsCli">
+										<p:graphicImage name="images/searchClientNew.png" width="50" height="50" />
+										<p:spacer height="0" width="10" />
+									</p:commandLink>
+									<p:tooltip id="toolTipConsClien" for="botonConsCli" value="Consulta de Clientes" trackMouse="true" />
+								</div>
+							</div>
+							<div class="col-md-3 col-xs-9 col-sm-9">
+								Cliente:
+								<h:outputLabel value="#{remisionBean.clienteSelected.apellidos}" />
+								&nbsp;
+								<h:outputLabel value="#{remisionBean.clienteSelected.nombres}" />
+							</div>
+							<div class="col-md-2 col-xs-6 col-sm-6">
+								Nit:
+								<h:outputLabel value="#{remisionBean.clienteSelected.cedula}" />
+							</div>
+							<div class="col-md-4 col-xs-12 col-sm-12">
+								<div class="form-group">
+									<p:commandButton styleClass="GreenButton" value="Consultar" actionListener="#{remisionBean.consultaRemisiones}" update=":formConsulta:tablaconsulta" />
+								</div>
+							</div>
+						</div>
+						<div class="col-md-1 col-sm-0 col-xs-12"></div>
+					</div>
+				</div>
+			</h:form>
+			<h:form id="searchClients">
+				<p:dialog header="Consulta de clientes" widgetVar="searchCl" modal="true" position="center" closeOnEscape="true">
+					<p:dataTable var="listClient" value="#{remisionBean.clientes}" reflow="true" rows="5" widgetVar="clienteTable" paginator="true" emptyMessage="No hay clientes que coincidan con la busqueda" filteredValue="#{remisionBean.clientesFilter}" id="tablaClientes">
+						<f:facet name="header">
+							<p:outputPanel>
+								<h:outputText value="Busqueda de clientes:" />
+								<p:inputText id="globalFilter" onkeyup="PF('clienteTable').filter()" style="width:150px" placeholder="Ingrese palabra" />
+							</p:outputPanel>
+						</f:facet>
+						<p:column headerText="Cedula" style="text-align: center" filterBy="#{listClient.cedula}">
+							<h:outputText value="#{listClient.cedula}" />
+						</p:column>
+
+						<p:column headerText="Nombres" filterBy="#{listClient.nombres}">
+							<h:outputText value="#{listClient.nombres}" />
+						</p:column>
+
+						<p:column headerText="Dirección" filterBy="#{listClient.direccion}">
+							<h:outputText value="#{listClient.direccion}" />
+						</p:column>
+						<p:column headerText="Telefono" filterBy="#{listClient.telefono}">
+							<h:outputText value="#{listClient.telefono}" />
+						</p:column>
+						<p:column headerText="Adicionar" style="width:100px;text-align: center">
+							<p:commandButton icon="ui-icon-search" title="Seleccion" ajax="true" oncomplete="PF('searchCl').hide()" update=":formPrincipal" actionListener="#{remisionBean.seleccionarCliente(listClient)}">
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+				</p:dialog>
+			</h:form>
+			<h:form id="formConsulta">
+				<div class="row">
+					<div class="col-md-1 col-sm-0 col-xs-0"></div>
+					<div class="col-md-10 col-sm-0 col-xs-0">
+						<p:dataTable value="#{remisionBean.resultRemisiones}" var="remision" reflow="true" paginator="true" rows="10" id="tablaconsulta">
+							<p:column headerText="fecha" width="15%">
+								<h:outputText value="#{remision.fecha}" converterId="co.com.codesoftware.converter.xmlDatetoDateConverter"></h:outputText>
+							</p:column>
+							<p:column headerText="Sede.">
+								<h:outputLabel value="#{remision.sede.name}"></h:outputLabel>
+							</p:column>
+							<p:column headerText="Cliente.">
+								<h:outputLabel value="#{remision.cliente.apellidos}" />
+								&nbsp;
+								<h:outputLabel value="#{remision.cliente.nombres}" />
+							</p:column>
+							<p:column headerText="Accion" width="10%">
+								<p:commandButton value="Ver Detalle." actionListener="#{remisionBean.consultaRemision(remision)}" update=":formPrincipal:messages,:formRemEspecifica:tablaRemEspeci,:formRemEspecifica:tablaDetalleProd" onsuccess="PF('dialogRemEspe').show();" />
+							</p:column>
+						</p:dataTable>
+					</div>
+					<div class="col-md-1 col-sm-0 col-xs-0"></div>
+				</div>
+			</h:form>
+			<h:form id="formRemEspecifica">
+				<p:dialog id="dialogRemEspe" header="DETALLE REMISION" widgetVar="dialogRemEspe" closeOnEscape="true" modal="true" responsive="true" width="700">
+					<p:panelGrid id="tablaRemEspeci">
+						<f:facet name="header">
+							<p:row>
+								<p:column colspan="4">Consulta Remision Especifica</p:column>
+							</p:row>
+						</f:facet>
+						<p:row>
+							<p:column>Cliente </p:column>
+							<p:column>
+								<p:outputLabel value="#{remisionBean.remisionModal.cliente.nombres}" />
+								<p:outputLabel value=" " />
+								<p:outputLabel value="#{remisionBean.remisionModal.cliente.apellidos}" />
+							</p:column>
+							<p:column>
+								Nit/Cedula:
+							</p:column>
+							<p:column>
+								<p:outputLabel value="#{remisionBean.remisionModal.cliente.cedula}" />
+							</p:column>
+						</p:row>
+						<p:row>
+							<p:column>Usuario:</p:column>
+							<p:column>
+								<p:outputLabel value="#{remisionBean.remisionModal.usuario.persona.apellido}" />
+								<p:outputLabel value=" " />
+								<p:outputLabel value="#{remisionBean.remisionModal.usuario.persona.nombre}" />
+							</p:column>
+							<p:column>Fecha:</p:column>
+							<p:column>
+								<p:outputLabel value="#{remisionBean.remisionModal.fecha.toGregorianCalendar().time}">
+									<f:convertDateTime pattern="dd/MM/yyyy" />
+								</p:outputLabel>
+							</p:column>
+						</p:row>
+					</p:panelGrid>
+					<br />
+					<p:dataTable var="remision" id="tablaDetalleProd" emptyMessage="No hay productos adicionados" value="#{remisionBean.productosPedidoMod}" reflow="true">
+						<f:facet name="header">
+								<h:outputText value="DETALLE DE PRODUCTOS" />
+						</f:facet>
+						<p:column headerText="CANTIDAD" width="15%">
+							<h:outputText value="#{remision.cantidad}" />
+						</p:column>
+						<p:column headerText="CODIGO" width="15%">
+							<h:outputText value="#{remision.codigo}" />
+						</p:column>
+						<p:column headerText="NOMBRE" width="45%">
+							<h:outputText value="#{remision.nombre}" />
+						</p:column>
+						<p:column headerText="PRECIO" width="25%">
+							<h:outputText value="#{remision.precio}" >
+								<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+							</h:outputText>
+						</p:column>
+					</p:dataTable>
+					<br />
+					<p:commandButton styleClass="BlueButton" value="REMISIONAR"  actionListener="#{remisionBean.enviarRemision}" onsuccess="PF('dialogRemEspe').hide();" update=":formConsulta,formVisorRemision"/>
+				</p:dialog>
+			</h:form>
+			<h:form id="formVisorRemision">
+				<p:dialog id="visorPdfRemision" widgetVar="dialogVisorPdfRem" modal="true" closeOnEscape="true" header="Factura Generica">	
+					<pe:documentViewer id="VisorRemision" width="600" height="600" url="#{remisionBean.rutaRemision}" />
+				</p:dialog>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=yes" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<script>
+		$(function() {
+			$('.cantidadConteo').val('1');
+			$('.codExterno').focus();
+			$('.codExterno').keypress(function(e) {
+				if (e.which == 13) {
+					$('.codigoBarras').focus();
+				}
+			});
+			$('.codigoBarras').keypress(function(e) {
+				if (e.which == 13) {
+					$('.cantidadConteo').focus();
+				}
+			});
+		});
+	</script>
+</h:head>
+<body>
+	<ui:composition template="/TEMPLATE/template.xhtml">
+		<ui:define name="content">
+			<p:growl autoUpdate="true" id="mensajes" showDetail="true" />
+			<div class="row">
+				<div class="col-md-1 col-sm-0 col-xs-0"></div>
+				<div class="col-md-5 col-sm-12 col-xs-12">
+					<p:commandLink onclick="PF('searchConteos').show();" actionListener="#{conteoProdBean.consultaConteosAbiertos}" update=":formConteos:tablaConteos">
+						<p:graphicImage name="images/conteos/conteo.png" width="50" height="50" />
+						<p:spacer height="0" width="10" />
+					</p:commandLink>
+					<p:commandLink onclick="PF('searchProductos').show();" action="#{conteoProdBean.buscaProductosGenericos}" update=":searchProd:tablaProductos">
+						<p:graphicImage name="images/searchPed.png" width="50" height="50" />
+						<p:spacer height="0" width="10" />
+					</p:commandLink>
+				</div>
+				<div class="col-md-5 col-sm-12 col-xs-12">
+					<h:form id="descConteo">
+						<table class="table table-bordered">
+							<tr>
+								<td style="width: 40%"><p:outputLabel value="Id Conteo:" /></td>
+								<td><p:outputLabel value="#{conteoProdBean.conteo.id}" /></td>
+							</tr>
+							<tr>
+								<td style="width: 40%"><p:outputLabel value="Descripción Conteo:" /></td>
+								<td><p:outputLabel value="#{conteoProdBean.conteo.descripcion}" /></td>
+							</tr>
+						</table>
+					</h:form>
+				</div>
+				<div class="col-md-1 col-sm-0 col-xs-0"></div>
+			</div>
+			<h:form id="formProductos">
+				<div class="row">
+					<div class="col-md-1 col-sm-0 col-xs-0"></div>
+					<div class="col-md-10 col-sm-12 col-xs-12">
+						<p:panelGrid styleClass="table table-bordered">
+							<f:facet name="header">
+								<p:row>
+									<p:column colspan="4">Registro de Productos</p:column>
+								</p:row>
+							</f:facet>
+							<p:row>
+								<p:column>
+									<p:outputLabel value="Codigo Externo:" />
+									<p:inputText value="#{conteoProdBean.codigoExterno}" styleClass="codExterno" id="codExternoPrinc"></p:inputText>
+								</p:column>
+								<p:column>
+									<p:outputLabel value="Codigo de Barras:" />
+									<p:inputText value="#{conteoProdBean.codigoBarras}" styleClass="codigoBarras"></p:inputText>
+								</p:column>
+								<p:column>
+									<p:outputLabel value="Cantidad:" />
+									<p:inputText value="#{conteoProdBean.cantidad}" styleClass="cantidadConteo"></p:inputText>
+								</p:column>
+								<p:column>
+									<p:outputLabel value="Ubicacion:" />
+									<p:inputText value="#{conteoProdBean.ubicacion}" styleClass="ubicacionConteo"></p:inputText>
+								</p:column>
+							</p:row>
+							<p:row>
+								<p:column colspan="2">
+								</p:column>
+								<p:column>
+									<p:commandButton value="Adicionar" action="#{conteoProdBean.adicionaProductosConteos}" type="submit" update=":formTablaProdContados:tablaProdContados" />
+								</p:column>
+								<p:column>
+									<p:commandButton value="Todos" action="#{conteoProdBean.buscaTodoConteo}" type="submit" update=":formTablaProdContados:tablaProdContados" />
+								</p:column>
+							</p:row>
+						</p:panelGrid>
+					</div>
+					<div class="col-md-1 col-sm-0 col-xs-0"></div>
+				</div>
+			</h:form>
+			<br />
+			<div class="row">
+				<div class="col-md-1 col-sm-0 col-xs-0"></div>
+				<div class="col-md-10 col-sm-12 col-xs-12">
+					<h:form id="prodSeleccionado">
+						<p:panelGrid id="panelProductoSelect" styleClass="table table-bordered">
+							<f:facet name="header">
+								<p:row>
+									<p:column colspan="2">Producto seleccionado</p:column>
+								</p:row>
+							</f:facet>
+							<p:row>
+								<p:column>
+									<p:outputLabel value="Cod. ext:" />
+									<p:outputLabel styleClass="form-control" value="#{conteoProdBean.producto.producto.codigoExt}" id="codigoExtProd" />
+								</p:column>
+								<p:column>
+									<p:outputLabel value="Nombre:" />
+									<p:outputLabel styleClass="form-control" value="#{conteoProdBean.producto.producto.descripcion}" id="cantidadPrd" />
+								</p:column>
+							</p:row>
+							<p:row>
+								<p:column>
+
+								</p:column>
+								<p:column>
+
+								</p:column>
+							</p:row>
+						</p:panelGrid>
+					</h:form>
+				</div>
+				<div class="col-md-1 col-sm-0 col-xs-0"></div>
+			</div>
+			<h:form id="formTablaProdContados">
+				<div class="row">
+					<div class="col-md-1 col-sm-0 col-xs-0"></div>
+					<div class="col-md-10 col-sm-0 col-xs-0">
+						<p:dataTable var="listaProdContados" value="#{conteoProdBean.listaProdContados}" id="tablaProdContados" emptyMessage="No existen productos en el conteo">
+							<p:column headerText="Codigo Externo">
+								<h:outputText value="#{listaProdContados.producto.codigoExt}" />
+							</p:column>
+							<p:column headerText="Descripción">
+								<h:outputText value="#{listaProdContados.producto.descripcion}"></h:outputText>
+							</p:column>
+							<p:column headerText="Cantidad">
+								<h:outputText value="#{listaProdContados.cantidad}"></h:outputText>
+							</p:column>
+						</p:dataTable>
+					</div>
+					<div class="col-md-1 col-sm-0 col-xs-0"></div>
+				</div>
+			</h:form>
+			<!-- Formulario con la cual se buscan los productos -->
+			<h:form id="searchProd">
+				<p:dialog header="Consulta de Productos" modal="true" widgetVar="searchProductos" closeOnEscape="true">
+					<p:dataTable var="listaProd" value="#{conteoProdBean.listaProductosGeneric}" reflow="true" rows="30" widgetVar="productosTable" paginator="true" emptyMessage="No hay productos que coincidan con la busqueda" filteredValue="#{conteoProdBean.listaProductosGenericFiltro}"
+						id="tablaProductos" rowsPerPageTemplate="10,25,50,500,1000" scrollable="true" scrollHeight="350" scrollRows="20">
+						<p:column headerText="Codigo" filterBy="#{listaProd.producto.codigoExt}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.codigoExt}" />
+						</p:column>
+						<p:column headerText="Descripcion" filterBy="#{listaProd.producto.descripcion}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.descripcion}" />
+						</p:column>
+						<p:column headerText="Categoria" filterBy="#{listaProd.producto.categoria.descripcion}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.categoria.descripcion}" />
+						</p:column>
+						<p:column headerText="SubCategoria" filterBy="#{listaProd.producto.referencia.nombre}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.referencia.nombre}" />
+						</p:column>
+						<p:column headerText="Marca" filterBy="#{listaProd.producto.marca.nombre}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.marca.nombre}" />
+						</p:column>
+						<p:column headerText="Ubicacion" filterBy="#{listaProd.producto.ubicacion}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.ubicacion}" />
+						</p:column>
+						<p:column headerText="Adicionar" style="width:100px;text-align: center">
+							<p:commandButton icon="ui-icon-search" title="Seleccion" ajax="true" oncomplete="PF('searchProductos').hide()" actionListener="#{conteoProdBean.addProductXCategoria(listaProd)}" onclick="PF('productosTable').clearFilters()"
+								update=":prodSeleccionado:panelProductoSelect,:formProductos:codExternoPrinc">
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+				</p:dialog>
+			</h:form>
+			<h:form id="formConteos">
+				<p:dialog header="Consulta de Productos" modal="true" widgetVar="searchConteos">
+					<p:dataTable var="listaConteos" value="#{conteoProdBean.listaConteos}" id="tablaConteos" emptyMessage="No Existen conteos Abiertos">
+						<p:column headerText="Id Conteo">
+							<h:outputText value="#{listaConteos.id}" />
+						</p:column>
+						<p:column headerText="Descripción">
+							<h:outputText value="#{listaConteos.descripcion}"></h:outputText>
+						</p:column>
+						<p:column headerText="Acción">
+							<p:commandButton value="ADD" actionListener="#{conteoProdBean.seleccionaConteo(listaConteos)}" icon="ui-icon-search" ajax="true" oncomplete="PF('searchConteos').hide()" update=":descConteo">
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+				</p:dialog>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>

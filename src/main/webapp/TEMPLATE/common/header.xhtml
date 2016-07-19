@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<style>
+.ui-dock-container-top {
+	position: relative !important;
+}
+</style>
+</h:head>
+<body>
+	<ui:composition>
+		<h:form id="formBanner">
+			<p:toolbar>
+				<f:facet name="left">
+					<p:commandButton type="push" title="generación de facturas" value="FACTURACION" action="/ACTIONS/inicio" rendered="#{facturacionBean.permisosUsuario.contains('.FcCr1.')}"></p:commandButton>
+					<p:commandButton type="push" title="consulta facturacion" value="FACTURAS" rendered="#{facturacionBean.permisosUsuario.contains('.FcCr1.')}"
+						action="#{consultaFacturacionBean.redireccionConsultaFacturacion}"></p:commandButton>
+					<p:spacer width="150" height="0" />
+					<h:outputText value="Domicilios: " />
+					<p:selectBooleanCheckbox value="#{facturacionBean.domicilio}">
+						<p:ajax listener="#{facturacionBean.addAjaxCheck}" />
+					</p:selectBooleanCheckbox>
+					<p:graphicImage library="images" name="domicilios.png" width="20" height="20" />
+					<p:commandButton type="push" title="generación de pedidos" value="PEDIDOS" action="/ACTIONS/PEDIDOS/pedidos" rendered="#{facturacionBean.permisosUsuario.contains('FcCr7')}"></p:commandButton>
+					<p:commandButton type="push" title="Conteo de productos"   value="CONTEOS" action="/ACTIONS/CONTEOS/ejecutaConteo" rendered="#{facturacionBean.permisosUsuario.contains('InPr13')}"></p:commandButton>
+					<p:commandButton type="push" title="cotizacion" value="COTIZACIONES" action="/ACTIONS/COTIZACION/consultaCotizacion" rendered="#{facturacionBean.permisosUsuario.contains('FcCr12')}" />
+					<p:commandButton type="push" title="remision" value="REMISIONES" action="/ACTIONS/REMISION/consultaRemision" rendered="#{facturacionBean.permisosUsuario.contains('FcCr14')}" />
+					<p:commandButton type="push" title="solicitudes" value="SOLICITUDES" action="/ACTIONS/SOLICITUDES/CreaSolicitud"  />
+					<p:graphicImage library="images" name="logo.png" width="150" />
+				</f:facet>
+				<f:facet name="right">
+					<p:commandButton type="push" title="cambio contraseña" value="CONTRASEÑA" action="/ACTIONS/USUARIO/cambioCont"></p:commandButton>
+					<p:commandButton type="push" title="cerrar sesión" value="SALIR" actionListener="#{loginBean.cerrarSesion}" action="/index" icon="ui-icon-power"></p:commandButton>
+				</f:facet>
+			</p:toolbar>
+			<h:form>
+				<div class="row alert alert-warning" style="padding: 5px;">
+					<div class="col-md-1 col-sm-0 col-xs-0"></div>
+					<div class="col-md-10 col-sm-12 col-xs-12 text-center">
+						<div class="col-md-2 col-sm-6 col-xs-6 text-center">
+							<b>Usuario:</b>
+							<p:outputLabel value="#{loginBean.entitySession.dataUser.usuario}"></p:outputLabel>
+						</div>
+						<div class="col-md-4 col-sm-6 col-xs-6 text-center">
+							<ui:repeat var="item" value="#{loginBean.entitySession.dataUser.persona}">
+								<b>Nombre:</b>
+								<p:outputLabel value="#{item.apellido}"></p:outputLabel> 
+								&nbsp;
+								<p:outputLabel value="#{item.nombre}"></p:outputLabel>								
+							</ui:repeat>
+						</div>
+						<div class="col-md-3 col-sm-6 col-xs-6 text-center">
+							<b>Ultimo Ingreso:</b> 
+							<p:outputLabel value="#{loginBean.entitySession.dataUser.ultimoIngresa}" >
+								<f:converter converterId="co.com.codesoftware.converter.xmlDatetoDateConverter"></f:converter>
+							</p:outputLabel>
+						</div>
+						<div class="col-md-3 col-sm-6 col-xs-6 text-center">
+							<b>Sede:</b>
+							<p:outputLabel value="#{loginBean.entitySession.sede.name}" />
+						</div>
+					</div>
+					<div class="col-md-1 col-sm-0 col-xs-0"></div>
+				</div>
+			</h:form>
+		</h:form>
+	</ui:composition>
+</body>
+</html>

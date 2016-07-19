@@ -1,0 +1,55 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=yes" />
+	<h:outputStylesheet library="css" name="style1.css"></h:outputStylesheet>
+	<h:outputStylesheet library="css" name="style2.css"></h:outputStylesheet>
+	<h:outputStylesheet library="css" name="style3.css"></h:outputStylesheet>
+	<h:outputStylesheet library="css" name="style5.css"></h:outputStylesheet>
+	<h:outputStylesheet library="css" name="style6.css"></h:outputStylesheet>
+	<link rel="stylesheet" type="text/css" href="/SAFC/BOOTSTRAP/bootstrap.css" />
+</h:head>
+<body>
+
+	<h:form>
+		<f:event listener="#{loginBean.iniciaLogoAplicacion}" type="preRenderView" />
+		<div class="row">
+			<div class="col-md-4 col-sm-0 col-xs-0"></div>
+			<div class="col-md-4 col-sm-0 col-xs-0">
+				<p:spacer height="200" width="20" />
+			</div>
+			<div class="col-md-4 col-sm-0 col-xs-0"></div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-4 col-sm-0 col-xs-0"></div>
+			<div class="col-md-4 col-sm-12 col-xs-12">
+				<p:graphicImage library="images" name="logo.png" width="100%" />
+				<br/>
+				<p:growl id="message" sticky="true" showDetail="true" life="3000" />
+				<h:panelGrid border="1" styleClass="table table-bordered table-responsive" columns="2" headerClass="alert alert-success text-center">
+					<f:facet name="header">
+						<h:outputLabel>
+							<h3>Ingreso de usuario</h3>
+						</h:outputLabel>
+					</f:facet>
+					<h:outputLabel for="user" value="Usuario: " />
+					<p:inputText id="user" value="#{loginBean.user}" required="true" requiredMessage="Ingrese Usuario." label="user" styleClass="form-control" />
+					<h:outputLabel for="user" value="Contraseña:" />
+					<p:password id="password" value="#{loginBean.password}" required="true" label="password" requiredMessage="Ingrese Contraseña" styleClass="form-control" />
+					<f:facet name="footer">
+						<p:commandButton value="Ingresar" action="#{loginBean.getMessageLogin()}" update="message" onstart="PF('statusDialog').show();" oncomplete="PF('statusDialog').hide()"></p:commandButton>
+					</f:facet>
+				</h:panelGrid>
+			</div>
+			<div class="col-md-4 col-sm-0 col-xs-0"></div>
+		</div>
+		<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false">
+			REALIZANDO LA VALIDACION DE DATOS EN EL SISTEMA
+				<p:graphicImage library="IMAGESAJAX" name="ajax-loader.gif" />
+		</p:dialog>
+	</h:form>
+</body>
+</html>

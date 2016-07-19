@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+<h:head>
+</h:head>
+<body>
+	<ui:composition template="/TEMPLATE/template.xhtml">
+		<ui:define name="content">
+			<h:form id="formulario">
+				<p:growl id="mensajes" showDetail="true" autoUpdate="true"></p:growl>
+				<p:spacer></p:spacer>
+				<center>
+					<p:panelGrid layout="grid" columns="4" id="panelSolicitud">
+						<f:facet name="header">
+							<p:outputLabel value="CREACIÒN SOLICITUD" />
+						</f:facet>
+						<p:commandButton styleClass="GreenButton" value="CREAR"
+							onclick="PF('datosSolicitud').show()" />
+						<p:outputLabel value="Fecha:#{solicitudBean.solicitud.fecha}" />
+						<p:outputLabel
+							value="Usuario:#{solicitudBean.solicitud.usuario.persona.nombre}" />
+						<p:outputLabel value="Sede:#{solicitudBean.solicitud.sede.name}" />
+					</p:panelGrid>
+					<p:panelGrid layout="grid" columns="1" id="panelProductos">
+						<p:commandButton styleClass="BlueButton"
+							value="ADICIONAR PRODUCTOS" onclick="PF('productos').show()" />
+						<p:dataTable var="listaProd"
+							value="#{solicitudBean.productosSolicitud}" reflow="true"
+							widgetVar="tablaProduc" paginator="true"
+							emptyMessage="No se ha agregado ningun producto"
+							id="tablaProductosSoli" editable="true" editMode="cell" rows="15">
+							<p:ajax event="cellEdit"
+								listener="#{solicitudBean.editaCelda(listaProd)}"
+								update="tablaProductosSoli,:formulario:mensajes" />
+							<p:column headerText="Código">
+								<p:outputLabel value="#{listaProd.producto.codigoExt}" />
+							</p:column>
+							<p:column headerText="Nombre">
+								<p:outputLabel value="#{listaProd.producto.nombre}" />
+							</p:column>
+							<p:column headerText="cantidad">
+								<p:cellEditor>
+									<f:facet name="output">
+										<h:outputText value="#{listaProd.cantidadSolicitada}" />
+									</f:facet>
+									<f:facet name="input">
+										<pe:inputNumber value="#{listaProd.cantidadSolicitada}" />
+									</f:facet>
+								</p:cellEditor>
+							</p:column>
+							<p:column headerText="EXISTENCIAS">
+								<p:commandButton value="VER" styleClass="GrayButton" onclick="PF('existenciasSede').show()"
+									actionListener="#{solicitudBean.consultaExistenciaSedes(listaProd.producto.id)}"
+									update=":formulario:existenciaSede" />
+							</p:column>
+							<p:column headerText="ELIMINAR">
+								<p:commandButton value="DEL" styleClass="RedButton"
+									actionListener="#{solicitudBean.eliminaProducto(listaProd.producto.codigoExt)}"
+									update="tablaProductosSoli" />
+							</p:column>
+						</p:dataTable>
+						<p:commandButton styleClass="OrangeButton" value="ENVIAR"
+							actionListener="#{solicitudBean.validaProductos}"
+							update=":formulario:panelSolicitud,panelProductos" />
+					</p:panelGrid>
+				</center>
+				
+				
+				
+				<p:dialog closeOnEscape="true" header="SOLICITUD" responsive="true"
+					widgetVar="datosSolicitud" modal="true">
+					<p:panelGrid layout="grid" columns="1">
+						<p:outputLabel value="Descripciòn:" />
+						<p:inputTextarea id="comentarios" cols="30"
+							value="#{solicitudBean.solicitud.comentario}" />
+						<p:commandButton styleClass="BlueButton" value="INSERTAR"
+							actionListener="#{solicitudBean.insertaSolicitud}"
+							oncomplete="PF('datosSolicitud').hide()"
+							update="panelSolicitud,panelProductos" />
+
+					</p:panelGrid>
+				</p:dialog>
+				
+				<p:dialog closeOnEscape="true" header="EXISTENCIAS POR SEDE"
+					responsive="true" widgetVar="existenciasSede" modal="true">
+					<p:dataTable var="listExistencias"
+						value="#{solicitudBean.listaExistencia}" reflow="true" rows="5"
+						widgetVar="productosTable" paginator="true"
+						emptyMessage="No hay Existencias en ninguna sede"
+						id="existenciaSede">
+						<p:column headerText="Nombre Sede" >
+							<h:outputText value="#{listExistencias.sede.name}" />
+						</p:column>
+						<p:column headerText="Cantidades">
+							<h:outputText value="#{listExistencias.existencias}" />
+						</p:column>
+					</p:dataTable>
+				</p:dialog>
+				
+				<p:dialog closeOnEscape="true" header="PRODUCTOS" responsive="true"
+					widgetVar="productos" modal="true">
+					<p:dataTable var="listProductos"
+						value="#{solicitudBean.productosGenericos}" rows="8"
+						widgetVar="productosTable" paginator="true"
+						emptyMessage="No hay productos que coincidan con la busqueda"
+						filteredValue="#{solicitudBean.productosGenericosFilter}"
+						id="tablaProductos" editMode="contains" >
+						<p:column filterBy="#{listProductos.codigo}" filterMatchMode="contains" headerText="Código"
+							width="120">
+							<h:outputText value="#{listProductos.codigo}" />
+						</p:column>
+						<p:column filterBy="#{listProductos.codigoExterno}"
+							headerText="Código Externo" width="140" filterMatchMode="contains">
+							<h:outputText value="#{listProductos.codigoExterno}" />
+						</p:column>
+						<p:column filterBy="#{listProductos.nombre}" headerText="Nombre:" filterMatchMode="contains">
+							<h:outputText value="#{listProductos.nombre}" />
+						</p:column>
+						<p:column filterBy="#{listProductos.descripcion}"
+							headerText="Descripcion:">
+							<h:outputText value="#{listProductos.descripcion}" />
+						</p:column>
+						<p:column headerText="Agregar">
+							<p:commandButton icon="ui-icon-search" title="seleccion"
+								ajax="true" oncomplete="PF('productos').hide()"
+								actionListener="#{solicitudBean.seleccionaProducto(listProductos)}"
+								update=":formulario:panelProductos,:formulario:mensajes">
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+				</p:dialog>
+				
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>

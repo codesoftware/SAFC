@@ -1,0 +1,593 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=yes" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" type="text/css" href="/SAFC/BOOTSTRAP/bootstrap.css" /> 
+</h:head>
+
+<body>
+	<ui:composition template="/TEMPLATE/template.xhtml">
+		<ui:define name="content">
+			<script type="text/javascript">
+				function limpiarForm() {
+					document.getElementById("insertClient").reset();
+				}
+
+				function abrirPdf() {
+					var banderaFacturacion = document
+							.getElementsByClassName("banderaPdfPedido")[0].value;
+					if (banderaFacturacion.trim() == 'Ok') {
+						var idFact = document
+								.getElementsByClassName("idPdfAbrir")[0].value;
+						window.open("/SAFC/resources/images/pedidos/pedido_"
+								+ idFact + ".pdf", "_blank",
+								"resizable,scrollbars");
+					}
+				}
+
+				function muestraCotizacion() {
+					var banderaFacturacion = document
+							.getElementsByClassName("banderaPdfPedido")[0].value;
+					if (banderaFacturacion.trim() == 'Ok') {
+						var idCotiza = document
+								.getElementsByClassName("idPdfAbrirCot")[0].value;
+						window.open("/SAFC/resources/images/cotizacion/cotiza_"
+								+ idCotiza + ".pdf", "_blank",
+								"resizable,scrollbars");
+					}
+
+				}
+				function mostrarPanelProd(a, b, c) {
+					document.getElementsByClassName("oculto")[0].style.display = '';
+					document.getElementsByClassName("oculto")[1].style.display = '';
+					document.getElementsByClassName("oculto")[2].style.display = '';
+
+				}
+				function limpiaPrecio(valor) {
+					valor.value = '';
+				}
+				function llamaConsultaCodBarras() {
+					var boton = document
+							.getElementById('formPedidos:botonConsultaCodBarras');
+					boton.fireEvent("onclick");
+				}
+				function llamaConsultaProducto() {
+					var botonProd = document
+							.getElementById('formPedidos:botonConsultarProducto');
+					botonProd.fireEvent("onclick");
+				}
+				function llamaAdicionaProducto() {
+					alert("aaa");
+					var boton = document
+							.getElementById('formPedidos:botonAdicionarProducto');
+					boton.fireEvent("onclick");
+				}
+			</script>
+			<h:form id="formPedidos">
+				<p:remoteCommand name="buscaProducto" actionListener="#{pedidosBean.searchProdId}" update="product" oncomplete="mostrarPanelProd();" onsuccess="document.getElementById('formPedidos:cantidadPrd').focus(); " />
+				<p:remoteCommand name="addProdFac" actionListener="#{pedidosBean.addProductFact}" update=":formPedidos:ListPedi,:formPedidos:precioTotal" />
+
+				<p:inputText styleClass="banderaPdfPedido" value="#{pedidosBean.banderaPDF}" id="banderaPdf" style="display:none"></p:inputText>
+				<p:inputText styleClass="idPdfAbrir" value="#{pedidosBean.idFacturaAbrir}" id="idPdfAbrir" style="display:none"></p:inputText>
+				<p:inputText styleClass="idPdfAbrirCot" value="#{pedidosBean.idCotizacion}" style="display:none" id="idPdfAbrirCot">
+				</p:inputText>
+				<p:growl id="messages" sticky="false" showDetail="true" life="20000" />
+				<div class="col-md-5 col-sm-12 col-xs-12">
+					<div class="row">
+						<div class="col-md-12 col-sm-12 col-xs-12">
+							<p:panel header="Acciones">
+								<p:commandLink onclick="PF('insertClient').show();" id="botonInsCli">
+									<p:graphicImage name="images/clientNew.png" width="50" height="50" />
+									<p:spacer height="0" width="10" />
+								</p:commandLink>
+								<p:tooltip id="toolTipInsClien" for="botonInsCli" value="Insercion de Clientes" trackMouse="true" />
+								<p:commandLink actionListener="#{pedidosBean.buscaClientes}" update=":searchClients:tablaClientes" onclick="PF('searchCl').show();" id="botonConsCli">
+									<p:graphicImage name="images/searchClientNew.png" width="50" height="50" />
+									<p:spacer height="0" width="10" />
+								</p:commandLink>
+								<p:tooltip id="toolTipConsClien" for="botonConsCli" value="Consulta de Clientes" trackMouse="true" />
+								<p:commandLink actionListener="#{pedidosBean.limpiaBean}" update=":formPedidos:precioTotal,:formPedidos:ListPedi,formPedidos:tablaClienteComprador" id="botonLimpiarTod">
+									<p:graphicImage name="images/deleteForm.png" width="50" height="50" />
+									<p:spacer height="0" width="10" />
+								</p:commandLink>
+								<p:tooltip id="toolTipLimpiarTodo" for="botonLimpiarTod" value="Limpiar Formulario" trackMouse="true" />
+								<p:commandLink onclick="PF('searchProductos').show();" action="#{pedidosBean.buscaProductosGenericos}" update=":searchProd:tablaProductos" id="botonConsProd">
+									<p:graphicImage name="images/searchPed.png" width="50" height="50" />
+									<p:spacer height="0" width="10" />
+								</p:commandLink>
+								<p:tooltip id="toolTipConsProd" for="botonConsProd" value="Consultar Productos" trackMouse="true" />
+								<p:commandLink actionListener="#{pedidosBean.insertaPedido('CR')}" update=":formPedidos:messages,:formPedidos:precioTotal,:formPedidos:ListPedi,formPedidos:tablaClienteComprador ,:formPedidos:banderaPdf,:formPedidos:idPdfAbrir,:searchProd:mensajeEx,searchProd:tableExist"
+									oncomplete="abrirPdf();" id="botonEnviarPedido">
+									<p:graphicImage name="images/pedidos.png" width="50" height="50" />
+									<p:spacer height="0" width="10" />
+								</p:commandLink>
+								<p:tooltip id="toolTipEnviPedi" for="botonEnviarPedido" value="Enviar Pedido" trackMouse="true" />
+								<p:spacer width="50" height="0"></p:spacer>
+								<p:commandLink actionListener="#{pedidosBean.insertaPedido('GU')}" update=":formPedidos:messages,:formPedidos:precioTotal,:formPedidos:ListPedi,formPedidos:tablaClienteComprador ,:formPedidos:banderaPdf,:formPedidos:idPdfAbrir,:searchProd:mensajeEx,searchProd:tableExist"
+									id="botonGuardarPedido">
+									<p:graphicImage name="images/save.png" width="50" height="50" />
+								</p:commandLink>
+								<p:tooltip id="toolTipGuarPedi" for="botonGuardarPedido" value="Guardar Pedido" trackMouse="true" />
+								<p:commandLink onclick="PF('consultaPedidosXEstado').show();" actionListener="#{pedidosBean.resetConsultaPedidos}" update=":consultaPedidosXEstados:listPedidos" id="botonConsPedido">
+									<p:graphicImage name="images/eye.png" width="50" height="50" />
+								</p:commandLink>
+								<p:tooltip id="toolTipConsPedi" for="botonConsPedido" value="Consultar Pedidos" trackMouse="true" />
+								<p:commandLink id="botonCotizacion" actionListener="#{pedidosBean.insertaPedido('CO')}"
+									update=":formPedidos:messages,:formPedidos:precioTotal,:formPedidos:ListPedi,formPedidos:tablaClienteComprador ,:formPedidos:banderaPdf,:formPedidos:idPdfAbrir,:searchProd:mensajeEx,searchProd:tableExist,:formPedidos:idPdfAbrirCot" oncomplete="muestraCotizacion();">
+									<p:graphicImage name="images/cotizaImg.png" width="50" height="50" />
+								</p:commandLink>
+								<p:tooltip id="toolTipCotiza" for="botonCotizacion" value="Generar Cotizacion" trackMouse="true" />
+								<p:commandLink id="botonRemision" actionListener="#{pedidosBean.insertaPedido('SR')}" rendered="#{facturacionBean.permisosUsuario.contains('.FcCr13.')}"
+									update=":formPedidos:messages,:formPedidos:precioTotal,:formPedidos:ListPedi,formPedidos:tablaClienteComprador ,:formPedidos:banderaPdf,:formPedidos:idPdfAbrir,:searchProd:mensajeEx,searchProd:tableExist,:formPedidos:idPdfAbrirCot" oncomplete="muestraCotizacion();">
+									<p:graphicImage name="images/remision.png" width="50" height="50" />
+								</p:commandLink>
+								<p:tooltip id="toolTipRemision" for="botonRemision" value="Generar Solicitud de Remision" trackMouse="true" />
+							</p:panel>
+							<p:panel header="Datos del cliente" id="tablaClienteComprador">
+								<p:outputLabel value="Nombres:" />
+								<p:spacer height="0" width="20" />
+								<p:outputLabel value="#{pedidosBean.cliente.nombres}" />
+								<p:spacer height="0" width="20" />
+								<p:outputLabel value="Nit (CC):" />
+								<p:spacer height="0" width="20" />
+								<p:outputLabel value="#{pedidosBean.cliente.cedula}" />
+							</p:panel>
+							<!--<p:panel style="display: none;">
+								<f:facet name="header">
+									Consulta Subcategorias Tornillos
+								</f:facet>
+								<p:dataGrid var="categoria1" columns="6" value="#{pedidosBean.panel1Categoria}">
+									<p:commandLink actionListener="#{pedidosBean.consultaProductosXReferencia(categoria1.subcategoria)}" update=":busquedaProdRefe:tablaProdRI" oncomplete="PF('busquedaProdR').show()">
+										<p:graphicImage name="images/products/#{categoria1.rutaImagen}" width="50" height="50" />
+										<p:outputLabel style="font-size:12px" value="#{categoria1.nombre}" />
+									</p:commandLink>
+								</p:dataGrid>
+							</p:panel>-->
+
+							<!--  <p:panel style="display: none;">
+								<f:facet name="header">
+									Consulta Subcategorias Herramientas
+								</f:facet>
+								<p:dataGrid var="categoria2" columns="6" value="#{pedidosBean.panel2Categoria}">
+									<p:commandLink actionListener="#{pedidosBean.consultaProductosXReferencia(categoria2.subcategoria)}" update=":busquedaProdRefe:tablaProdRI" oncomplete="PF('busquedaProdR').show()">
+										<p:graphicImage name="images/products/#{categoria2.rutaImagen}" width="50" height="50" />
+										<p:outputLabel style="font-size:12px" value="#{categoria2.nombre}" />
+									</p:commandLink>
+								</p:dataGrid>
+							</p:panel>-->
+							<p:panelGrid styleClass="table table-bordered">
+								<f:facet name="header">
+									<p:row>
+										<p:column colspan="2">Consulta de Productos</p:column>
+									</p:row>
+								</f:facet>
+								<p:row>
+									<p:column>
+										<p:outputLabel value="Cod. ext:" />
+										<p:inputText styleClass="form-control" value="#{pedidosBean.codigoExterno}" id="codigoExtProd" onkeypress="if (event.keyCode == 13){ document.getElementById('formPedidos:cantidadPrd').focus();document.getElementById('formPedidos:botonConsultarProducto').click() }" />
+									</p:column>
+									<p:column>
+										<p:outputLabel value="Cantidad" />
+										<p:inputText styleClass="form-control" value="#{pedidosBean.cantidad}" id="cantidadPrd" onkeypress="if (event.keyCode == 13){ document.getElementById('formPedidos:botonAdicionarProducto').click(); return false;}"  />
+									</p:column>
+								</p:row>
+								<p:row>
+									<p:column>
+										<p:commandButton actionListener="#{pedidosBean.buscaProductoPorCodExterno}" value="CONSULTAR" id="botonConsultarProducto" update="product,:formPedidos:messages"
+											onsuccess="document.getElementById('formPedidos:cantidadPrd').focus();document.getElementById('formPedidos:cantidadPrd').value='1'" oncomplete="document.getElementById('formPedidos:cantidadPrd').select()"></p:commandButton>
+									</p:column>
+									<p:column>
+										<p:commandButton actionListener="#{pedidosBean.adicionaProductoLista}" value="ADICIONAR" id="botonAdicionarProducto" update="product,:formPedidos:ListPedi,:formPedidos:precioTotal"
+											onsuccess="document.getElementById('formPedidos:codigoExtProd').focus();document.getElementById('formPedidos:cantidadPrd').value='1';document.getElementById('formPedidos:codigoExtProd').value=''"></p:commandButton>
+									</p:column>
+								</p:row>
+								<p:row>
+									<p:column colspan="2">
+										<p:outputLabel value="Codigo de Barras:"></p:outputLabel>
+										<p:inputText id="buscaCodigoBarras" value="#{pedidosBean.codigoBarras}" onkeypress="if (event.keyCode == 13){ document.getElementById('formPedidos:botonConsultaCodBarras').click();return false; }" style="width:95%;" />
+										<p:commandButton actionListener="#{pedidosBean.buscaProdCodigoBarras}" id="botonConsultaCodBarras" value="CONSULTAR" styleClass="btn btn-primary" style="display:none;"
+											update=":formPedidos:messages,:formPedidos:product,:formPedidos:ListPedi,:formPedidos:precioTotal,buscaCodigoBarras" onsuccess="this.value = ''" />
+									</p:column>
+								</p:row>
+								<p:row>
+									<p:column colspan="2">
+										<h:panelGroup layout="block" id="product" styleClass="panel">
+											<p:outputLabel value="Nombre: " />
+											<p:outputLabel value="#{pedidosBean.productoConsulta.producto.descripcion}" />
+											<br />
+											<p:outputLabel value="Precio: " />
+											<p:outputLabel value="#{pedidosBean.productoConsulta.precioIva}">
+												<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+											</p:outputLabel>
+										</h:panelGroup>
+									</p:column>
+								</p:row>
+							</p:panelGrid>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-7 col-sm-12 col-xs-12">
+					<h:panelGroup layout="block" id="consultaProductos" styleClass="panel">
+						<div class="col-md-12 col-xs-12 col-sm-12 alert-info text-center" style="padding: 2px;">
+							<p:panel>
+								<h:outputLabel value="TOTAL: $" style="font-size:50px"></h:outputLabel>
+								<h:outputLabel value="#{pedidosBean.valorTotal}" style="font-size:50px" id="precioTotal">
+									<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+								</h:outputLabel>
+							</p:panel>
+
+							<p:panel header="Pedido">
+								<p:dataTable var="pedido" style="pading:0px;" id="ListPedi" emptyMessage="No hay productos adicionados" value="#{pedidosBean.listPedi}">
+									<p:column headerText="Cod" width="14%">
+										<h:outputText value="#{pedido.code}" />
+									</p:column>
+									<p:column headerText="Nombre" width="30%">
+										<h:outputText value="#{pedido.name}" />
+									</p:column>
+									<p:column headerText="#" width="10%">
+										<h:outputText value="#{pedido.amount}" />
+									</p:column>
+									<p:column headerText="Valor" width="18%">
+										<h:outputText value="#{pedido.price}">
+											<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+										</h:outputText>
+									</p:column>
+									<p:column headerText="Valor total" width="18%">
+										<h:outputText value="#{pedido.totalPrice}">
+											<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+										</h:outputText>
+									</p:column>
+									<p:column headerText="Acción" width="20%">
+										<p:commandButton icon="ui-icon-closethick" title="Borrar" ajax="true" update="ListPedi,:formPedidos:precioTotal" actionListener="#{pedidosBean.deleteRow(pedido)}">
+										</p:commandButton>
+										<p:commandButton icon="ui-icon-minus" title="Descontar" ajax="true" update="ListPedi,:formPedidos:precioTotal" actionListener="#{pedidosBean.updateRow(pedido)}">
+										</p:commandButton>
+										<p:commandButton icon="ui-icon-plusthick" title="Suma" ajax="true" onclick="PF('canti').show();" action="#{pedidosBean.guardaObjeto(pedido)}">
+										</p:commandButton>
+										<p:commandButton icon="ui-icon-key" title="Suma" ajax="true" oncomplete="PF('cambioPrecio').show();" update="precioProd" action="#{pedidosBean.guardaObjeto(pedido)}" rendered="#{facturacionBean.permisosUsuario.contains('.FcCr8.')}">
+										</p:commandButton>
+										<p:commandButton icon="ui-icon-cart" title="Suma" ajax="true" oncomplete="PF('cambioPrecioParam').show();" update="cambioPrecioParam" action="#{pedidosBean.guardaObjetoPrecios(pedido)}">
+										</p:commandButton>
+										<p:dialog id="cantidades" widgetVar="canti" modal="true" position="center" closeOnEscape="true">
+											<f:facet name="header">
+												<h:outputText value="Adiciona Cantidades:" />
+											</f:facet>
+											<p:inputText id="cant" value="#{pedidosBean.cantidadProd}" onkeypress="if (event.keyCode == 13){ document.getElementById('formPedidos:ListPedi:0:botonAdicionaCantidades').click();return false;}" onfocus="this.value = '' "  />
+											<p:commandButton value="Ingresar" id="botonAdicionaCantidades" action="#{pedidosBean.updateRowProd}" update="ListPedi,:formPedidos:precioTotal" />
+										</p:dialog>
+										<p:dialog id="cambioPrecio" widgetVar="cambioPrecio" modal="true" position="center" closeOnEscape="true">
+											<f:facet name="header">
+												<h:outputText value="Cambia Precio:" />
+											</f:facet>
+											<p:inputText id="precioProd" styleClass="cambiaPrecioProd" value="#{pedidosBean.precioNuevo}" onfocus="limpiaPrecio(this);" onkeypress="if (event.keyCode == 13){ document.getElementById('formPedidos:ListPedi:0:botonCambiaPrecio').click();return false;} " />
+											<p:commandButton value="Ingresar" id="botonCambiaPrecio" actionListener="#{pedidosBean.updatePrice}" update="ListPedi,:formPedidos:precioTotal,:formPedidos:messages" onsuccess="document.getElementsByClassName('cambiaPrecioProd')[0].value = '';" />
+										</p:dialog>
+										<p:dialog id="cambioPrecioParam" widgetVar="cambioPrecioParam" modal="true" position="left" closeOnEscape="true">
+											<p:panelGrid columns="3">
+												<p:commandLink actionListener="#{pedidosBean.cambiaPrecioNuevo(pedidosBean.productoModificar.precioXUnidad)}" update="ListPedi,:formPedidos:precioTotal">
+													<p:panelGrid columns="1">
+														<p:outputLabel value="precio x 12:" />
+														<p:outputLabel value="#{pedidosBean.productoModificar.precioXUnidad}">
+															<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+														</p:outputLabel>
+													</p:panelGrid>
+												</p:commandLink>
+												<p:commandLink actionListener="#{pedidosBean.cambiaPrecioNuevo(pedidosBean.productoModificar.precioXCien)}" update="ListPedi,:formPedidos:precioTotal" oncomplete="PF('cambioPrecioParam').hide();">
+													<p:panelGrid columns="1">
+														<p:outputLabel value="precio x 100:" />
+														<p:outputLabel value="#{pedidosBean.productoModificar.precioXCien}">
+															<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+														</p:outputLabel>
+													</p:panelGrid>
+												</p:commandLink>
+												<p:commandLink actionListener="#{pedidosBean.cambiaPrecioNuevo(pedidosBean.productoModificar.precioXMil)}" update="ListPedi,:formPedidos:precioTotal" oncomplete="PF('cambioPrecioParam').hide();">
+													<p:panelGrid columns="1">
+														<p:outputLabel value="precio x 1000:" />
+														<p:outputLabel value="#{pedidosBean.productoModificar.precioXMil}">
+															<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+														</p:outputLabel>
+													</p:panelGrid>
+												</p:commandLink>
+											</p:panelGrid>
+										</p:dialog>
+									</p:column>
+								</p:dataTable>
+							</p:panel>
+						</div>
+					</h:panelGroup>
+				</div>
+			</h:form>
+			<h:form id="busquedaProdRefe">
+				<p:dialog header="consulta Productos" widgetVar="busquedaProdR" modal="true" position="center">
+					<p:dataTable var="listaProd" value="#{pedidosBean.listaProductos}" reflow="true" rows="5" widgetVar="tablaProdR" paginator="true" emptyMessage="No hay productos que coinicidan con la busqueda" filteredValue="#{pedidosBean.listaProductosFiltro}" id="tablaProdRI">
+						<p:column headerText="Codigo" filterBy="#{listaProd.producto.codigoExt}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.codigoExt}" />
+						</p:column>
+						<p:column headerText="Descripcion" filterBy="#{listaProd.producto.descripcion}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.descripcion}" />
+						</p:column>
+						<p:column headerText="Categoria" filterBy="#{listaProd.producto.categoria.descripcion}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.categoria.descripcion}" />
+						</p:column>
+						<p:column headerText="SubCategoria" filterBy="#{listaProd.producto.referencia.nombre}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.referencia.nombre}" />
+						</p:column>
+						<p:column headerText="Marca" filterBy="#{listaProd.producto.marca.nombre}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.marca.nombre}" />
+						</p:column>
+						<p:column headerText="Precio x 1" filterBy="#{listaProd.precioIva}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.precioIva}">
+								<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+							</h:outputText>
+						</p:column>
+						<p:column headerText="Precio X 12" filterBy="#{listaProd.precioXUnidad}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.precioXUnidad}">
+								<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+							</h:outputText>
+						</p:column>
+						<p:column headerText="Precio X 100" filterBy="#{listaProd.precioXCien}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.precioXCien}">
+								<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+							</h:outputText>
+						</p:column>
+						<p:column headerText="Precio X 1000" filterBy="#{listaProd.precioXMil}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.precioXMil}">
+								<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+							</h:outputText>
+						</p:column>
+
+						<p:column headerText="Adicionar" style="width:100px;text-align: center">
+							<p:commandButton icon="ui-icon-search" title="Seleccion" ajax="true" oncomplete="PF('busquedaProdR').hide()" actionListener="#{pedidosBean.addProductXCategoria(listaProd)}" update=":formPedidos:ListPedi,:formPedidos:precioTotal,:busquedaProdRefe:tablaProdRI"
+								onclick="PF('busquedaProdR').clearFilters()">
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+				</p:dialog>
+			</h:form>
+			<h:form id="searchClients">
+				<p:dialog header="Consulta de clientes" widgetVar="searchCl" modal="true" position="center" closeOnEscape="true">
+					<p:dataTable var="listClient" value="#{pedidosBean.clientes}" reflow="true" rows="5" widgetVar="clienteTable" paginator="true" emptyMessage="No hay clientes que coincidan con la busqueda" filteredValue="#{pedidosBean.clientesFilter}" id="tablaClientes">
+						<f:facet name="header">
+							<p:outputPanel>
+								<h:outputText value="Busqueda de clientes:" />
+								<p:inputText id="globalFilter" onkeyup="PF('clienteTable').filter()" style="width:150px" placeholder="Ingrese palabra" />
+							</p:outputPanel>
+						</f:facet>
+						<p:column headerText="Cedula" style="text-align: center" filterBy="#{listClient.cedula}">
+							<h:outputText value="#{listClient.cedula}" />
+						</p:column>
+
+						<p:column headerText="Nombres" filterBy="#{listClient.nombres}">
+							<h:outputText value="#{listClient.nombres}" />
+						</p:column>
+
+						<p:column headerText="Dirección" filterBy="#{listClient.direccion}">
+							<h:outputText value="#{listClient.direccion}" />
+						</p:column>
+
+
+						<p:column headerText="Telefono" filterBy="#{listClient.telefono}">
+							<h:outputText value="#{listClient.telefono}" />
+						</p:column>
+						<p:column headerText="Adicionar" style="width:100px;text-align: center">
+							<p:commandButton icon="ui-icon-search" title="Seleccion" ajax="true" oncomplete="PF('searchCl').hide()" update=":formPedidos:tablaClienteComprador" actionListener="#{pedidosBean.seleccionarCliente(listClient)}">
+							</p:commandButton>
+						</p:column>
+
+					</p:dataTable>
+				</p:dialog>
+			</h:form>
+			<h:form id="insertClient">
+				<p:dialog header="Insercion de Clientes" widgetVar="insertClient" modal="true" position="center" width="500">
+					<p:messages id="mess" />
+					<h:panelGrid columns="2" styleClass="table table-bordered">
+						<h:outputLabel value="Cedula*:" for="cedula" />
+						<p:inputText id="cedula" styleClass="form-control" value="#{pedidosBean.cliente.cedula}" required="true" requiredMessage="Cedula es obligatorio" label="cedula">
+						</p:inputText>
+						<h:outputLabel value="Nombres*:" for="nombres" />
+						<p:inputText id="nombres" styleClass="form-control" value="#{pedidosBean.cliente.nombres}" required="true" requiredMessage="Nombre es obligatorio" label="nombres" />
+						<h:outputLabel value="Apellidos:" for="apellidos" />
+						<p:inputText id="apellidos" styleClass="form-control" value="#{pedidosBean.cliente.apellidos}" />
+						<h:outputLabel value="Direccion:" for="direccion" />
+						<p:inputText id="direccion" styleClass="form-control" value="#{pedidosBean.cliente.direccion}" />
+						<h:outputLabel value="Correo:" for="correo" />
+						<p:inputText id="correo" styleClass="form-control" value="#{pedidosBean.cliente.correo}" />
+						<h:outputLabel value="Telefono:" for="telefono" />
+						<p:inputText id="telefono" styleClass="form-control" value="#{pedidosBean.cliente.telefono}" />
+						<!-- Boton para generar la accion -->
+						<p:commandButton id="botonInsertar" value="Insertar" oncomplete="limpiarForm()" action="#{pedidosBean.addCliente}" update="mess,:formPedidos:tablaClienteComprador" ajax="true">
+						</p:commandButton>
+					</h:panelGrid>
+				</p:dialog>
+			</h:form>
+			<h:form id="updateClient">
+				<p:dialog header="Actualizacion Cliente" widgetVar="actualizarClient" modal="true" position="center" width="500">
+					<p:messages id="messUpd" />
+					<h:panelGrid columns="2" styleClass="table table-bordered">
+						<h:outputLabel value="Cedula*:" for="cedula" />
+						<p:inputText id="cedula" styleClass="form-control" value="#{pedidosBean.cliente.cedula}" required="true" requiredMessage="Cedula es obligatorio" label="cedula">
+						</p:inputText>
+
+						<h:outputLabel value="Nombres*:" for="nombres" />
+						<p:inputText id="nombres" styleClass="form-control" value="#{pedidosBean.cliente.nombres}" required="true" requiredMessage="Nombre es obligatorio" label="nombres" />
+						<h:outputLabel value="Apellidos:" for="apellidos" />
+						<p:inputText id="apellidos" styleClass="form-control" value="#{pedidosBean.cliente.apellidos}" />
+						<h:outputLabel value="Direccion:" for="direccion" />
+						<p:inputText id="direccion" styleClass="form-control" value="#{pedidosBean.cliente.direccion}" />
+						<h:outputLabel value="Correo:" for="correo" />
+						<p:inputText id="correo" styleClass="form-control" value="#{pedidosBean.cliente.correo}" />
+						<h:outputLabel value="Telefono:" for="telefono" />
+						<p:inputText id="telefono" styleClass="form-control" value="#{pedidosBean.cliente.telefono}" />
+						<!-- Boton para generar la accion -->
+						<p:commandButton id="botonUpdate" value="Actualizar" oncomplete="limpiarForm()" action="#{pedidosBean.updatecliente}" ajax="true" styleClass="btn btn-primary" update="messUpd,:formPedidos:messages">
+						</p:commandButton>
+					</h:panelGrid>
+				</p:dialog>
+			</h:form>
+
+			<h:form id="searchProd">
+				<p:dialog header="Consulta de Productos" modal="true" widgetVar="searchProductos" closeOnEscape="true">
+					<p:commandButton action="#{pedidosBean.reiniciarListaSedeProd}" value="REINICIO DE LISTA" oncomplete="PF('searchProductos').hide();" />
+					<br />
+					<p:dataTable var="listaProd" value="#{pedidosBean.listaProductosGeneric}" reflow="true" rows="30" widgetVar="productosTable" paginator="true" emptyMessage="No hay productos que coincidan con la busqueda" filteredValue="#{pedidosBean.listaProductosGenericFiltro}"
+						id="tablaProductos" rowsPerPageTemplate="10,25,50,500,1000" scrollable="true" scrollHeight="350" scrollRows="20">
+						<p:column headerText="Codigo" filterBy="#{listaProd.producto.codigoExt}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.codigoExt}" />
+						</p:column>
+						<p:column headerText="Descripcion" filterBy="#{listaProd.producto.descripcion}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.descripcion}" />
+						</p:column>
+						<p:column headerText="Categoria" filterBy="#{listaProd.producto.categoria.descripcion}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.categoria.descripcion}" />
+						</p:column>
+						<p:column headerText="SubCategoria" filterBy="#{listaProd.producto.referencia.nombre}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.referencia.nombre}" />
+						</p:column>
+						<p:column headerText="Marca" filterBy="#{listaProd.producto.marca.nombre}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.marca.nombre}" />
+						</p:column>
+						<p:column headerText="Ubicacion" filterBy="#{listaProd.producto.ubicacion}" filterMatchMode="contains">
+							<h:outputText value="#{listaProd.producto.ubicacion}" />
+						</p:column>
+						<p:column headerText="Precio Base">
+							<h:outputText value="#{listaProd.precioIva}">
+								<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+							</h:outputText>
+						</p:column>
+						<p:column headerText="Precio X U.">
+							<h:outputText value="#{listaProd.precioXUnidad}">
+								<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+							</h:outputText>
+						</p:column>
+						<p:column headerText="Precio X 100">
+							<h:outputText value="#{listaProd.precioXCien}">
+								<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+							</h:outputText>
+						</p:column>
+						<p:column headerText="Precio X 1000">
+							<h:outputText value="#{listaProd.precioXMil}">
+								<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+							</h:outputText>
+						</p:column>
+						<p:column headerText="Add" style="width:40px;text-align: center">
+							<p:commandButton icon="ui-icon-plus" title="Seleccion" oncomplete="PF('busquedaProdR').hide()" actionListener="#{pedidosBean.addProductXCategoria(listaProd)}"
+								update=":formPedidos:ListPedi,:formPedidos:precioTotal,:busquedaProdRefe:tablaProdRI,:searchProd:mensajeEx,searchProd:tableExist" onclick="PF('busquedaProdR').clearFilters()">
+							</p:commandButton>
+						</p:column>
+						<p:column headerText="Exst" style="width:50px;text-align: center" rendered="#{facturacionBean.permisosUsuario.contains('.FcCr10.')}">
+							<p:commandButton id="botonBuscaExistencias" icon="ui-icon-search" onsuccess="PF('consultaExist').show();" actionListener="#{pedidosBean.existenciasProd(listaProd)}" update=":formExistencias:tablaExistencias" />
+						</p:column>
+						<p:column headerText="Prom" style="width:50px;text-align: center" rendered="#{facturacionBean.permisosUsuario.contains('.FcCr9.')}">
+							<p:commandButton id="botonBuscaPromedio" icon="ui-icon-calculator" onsuccess="PF('consultaPromPond').show();" actionListener="#{pedidosBean.promPonderadoprod(listaProd)}" update=":formPromedioPon:panelPromPond" />
+						</p:column>
+					</p:dataTable>
+				</p:dialog>
+				<p:dialog header="Resumen Existencias" widgetVar="verExistencias" modal="true" width="600" closable="true">
+					<div class="row">
+						<h:panelGrid styleClass="table table-bordered">
+							<p:outputLabel value="#{pedidosBean.mensajeExistencias}" id="mensajeEx" />
+							<p:dataTable id="tableExist" value="#{pedidosBean.cantidadesSedes}" reflow="true" var="listExist">
+								<p:column headerText="Nombre Sede" width="50%">
+									<p:outputLabel value="#{listExist.sede.nombre}" />
+								</p:column>
+								<p:column headerText="Cantidad" width="20%">
+									<p:outputLabel value="#{listExist.existencia}" />
+								</p:column>
+							</p:dataTable>
+						</h:panelGrid>
+					</div>
+				</p:dialog>
+			</h:form>
+
+			<!-- Formulario de consulta de pedidos -->
+			<h:form id="consultaPedidosXEstados">
+				<p:dialog header="Consulta de Pedidos" modal="true" widgetVar="consultaPedidosXEstado" closeOnEscape="true">
+					<p:panelGrid columns="8">
+						<div class="col-md-4 col-xs-6 col-sm-6">
+							<div class="form-group">
+								<label for="calendario">Fecha Inicial:</label>
+								<p:calendar mode="popup" id="fechaInicial" value="#{pedidosBean.fechaInicial}"></p:calendar>
+							</div>
+						</div>
+						<div class="col-md-4 col-xs-6 col-sm-6">
+							<div class="form-group">
+								<label for="calendario">Fecha Final:</label>
+								<p:calendar mode="popup" id="fechaFinal" value="#{pedidosBean.fechaFinal}"></p:calendar>
+							</div>
+						</div>
+						<p:outputLabel value="Estado" />
+						<p:selectOneMenu id="Estado" value="#{pedidosBean.tipoPedido}">
+							<f:selectItem itemLabel="Seleccione Estado" itemValue="-1" />
+							<f:selectItem itemLabel="Creado" itemValue="1" />
+							<f:selectItem itemLabel="Facturado" itemValue="2" />
+							<f:selectItem itemLabel="Guardado" itemValue="3" />
+							<f:selectItem itemLabel="Cancelado" itemValue="4" />
+						</p:selectOneMenu>
+						<p:commandButton styleClass="GreenButton" actionListener="#{pedidosBean.consultaPedidosXEstado}" update="listPedidos,:formPedidos:messages" value="Consultar"></p:commandButton>
+					</p:panelGrid>
+					<p:dataTable var="listaPedidos" value="#{pedidosBean.pedidos}" reflow="true" rows="30" widgetVar="pedidosTable" paginator="true" id="listPedidos">
+						<p:column headerText="id">
+							<h:outputText value="#{listaPedidos.id}" />
+						</p:column>
+						<p:column headerText="Cliente">
+							<h:outputText value="#{listaPedidos.cliente.nombres}" />
+						</p:column>
+						<p:column headerText="Sede">
+							<h:outputText value="#{listaPedidos.sede.name}" />
+						</p:column>
+						<p:column headerText="Fecha">
+							<h:outputText value="#{listaPedidos.fecha}" />
+						</p:column>
+						<p:column headerText="Acción">
+							<p:commandButton id="botonInsertarPedido" value="Insertar" actionListener="#{pedidosBean.addPedidoHome(listaPedidos)}" update=":formPedidos:precioTotal,:formPedidos:ListPedi,formPedidos:tablaClienteComprador,:formPedidos:messages" ajax="true" />
+						</p:column>
+					</p:dataTable>
+				</p:dialog>
+			</h:form>
+			<!-- Formulario en el cual se visualizaran las existencias en las sedes de cada producto -->
+			<h:form id="formExistencias">
+				<p:dialog header="Existencias por Producto" modal="true" widgetVar="consultaExist" width="50%">
+					<p:dataTable var="exist" value="#{pedidosBean.prodExistencias}" reflow="true" widgetVar="productosExist" id="tablaExistencias" paginator="true">
+						<p:column headerText="SEDE">
+							<h:outputText value="#{exist.sede.name}" />
+						</p:column>
+						<p:column headerText="EXISTENCIA">
+							<h:outputText value="#{exist.existencias}">
+								<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+							</h:outputText>
+						</p:column>
+					</p:dataTable>
+				</p:dialog>
+			</h:form>
+			<!-- Formulario en el cual se visualizara el promedio ponderado de cada producto en las sedes de cada producto -->
+			<h:form id="formPromedioPon">
+				<p:dialog header="Promedio Ponderado Producto" modal="true" widgetVar="consultaPromPond" width="30%">
+					<p:panelGrid id="panelPromPond" columns="2" styleClass="table table-bordered">
+						<p:outputLabel value="Existencias Totales" />
+						<p:outputLabel value="#{pedidosBean.prodPromPond.existencias}">
+							<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+						</p:outputLabel>
+						<p:outputLabel value="Prom. Unidad" />
+						<p:outputLabel value="#{pedidosBean.prodPromPond.promUni}">
+							<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+						</p:outputLabel>
+						<p:outputLabel value="Prom. Total" />
+						<p:outputLabel value="#{pedidosBean.prodPromPond.promTotal}">
+							<f:convertNumber pattern="#,##0.00"></f:convertNumber>
+						</p:outputLabel>
+					</p:panelGrid>
+				</p:dialog>
+			</h:form>
+			<!--<p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+			<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false">
+			Ejecutando Proceso
+			<p:graphicImage library="IMAGESAJAX" name="ajax-loader.gif" />
+			</p:dialog>-->
+		</ui:define>
+	</ui:composition>
+
+</body>
+
+</html>
