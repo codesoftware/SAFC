@@ -90,7 +90,14 @@ public class SolicitudLogica implements WSGeneralInterface {
 	public Integer consultaCantidadesXId(Integer idProducto){
 		Integer rta = 0;
 		try {
-			rta = conexionWSProd().getPortProd().obtenerCantidadesXProducto(idProducto).get(0).getExistencias();
+			List<ExistenciaXSedeEntity> lista = new ArrayList<>();
+			lista = conexionWSProd().getPortProd().obtenerCantidadesXProducto(idProducto);
+			if(lista==null || lista.isEmpty()){
+				rta =0;
+			}else{
+				rta = lista.get(0).getExistencias();
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

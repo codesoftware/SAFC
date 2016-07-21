@@ -53,7 +53,8 @@
 								</p:cellEditor>
 							</p:column>
 							<p:column headerText="EXISTENCIAS">
-								<p:commandButton value="VER" styleClass="GrayButton" onclick="PF('existenciasSede').show()"
+								<p:commandButton value="VER" styleClass="GrayButton"
+									onclick="PF('existenciasSede').show()"
 									actionListener="#{solicitudBean.consultaExistenciaSedes(listaProd.producto.id)}"
 									update=":formulario:existenciaSede" />
 							</p:column>
@@ -68,9 +69,9 @@
 							update=":formulario:panelSolicitud,panelProductos" />
 					</p:panelGrid>
 				</center>
-				
-				
-				
+
+
+
 				<p:dialog closeOnEscape="true" header="SOLICITUD" responsive="true"
 					widgetVar="datosSolicitud" modal="true">
 					<p:panelGrid layout="grid" columns="1">
@@ -84,7 +85,7 @@
 
 					</p:panelGrid>
 				</p:dialog>
-				
+
 				<p:dialog closeOnEscape="true" header="EXISTENCIAS POR SEDE"
 					responsive="true" widgetVar="existenciasSede" modal="true">
 					<p:dataTable var="listExistencias"
@@ -92,7 +93,7 @@
 						widgetVar="productosTable" paginator="true"
 						emptyMessage="No hay Existencias en ninguna sede"
 						id="existenciaSede">
-						<p:column headerText="Nombre Sede" >
+						<p:column headerText="Nombre Sede">
 							<h:outputText value="#{listExistencias.sede.name}" />
 						</p:column>
 						<p:column headerText="Cantidades">
@@ -100,7 +101,7 @@
 						</p:column>
 					</p:dataTable>
 				</p:dialog>
-				
+
 				<p:dialog closeOnEscape="true" header="PRODUCTOS" responsive="true"
 					widgetVar="productos" modal="true">
 					<p:dataTable var="listProductos"
@@ -108,16 +109,18 @@
 						widgetVar="productosTable" paginator="true"
 						emptyMessage="No hay productos que coincidan con la busqueda"
 						filteredValue="#{solicitudBean.productosGenericosFilter}"
-						id="tablaProductos" editMode="contains" >
-						<p:column filterBy="#{listProductos.codigo}" filterMatchMode="contains" headerText="Código"
-							width="120">
+						id="tablaProductos" editMode="contains">
+						<p:column filterBy="#{listProductos.codigo}"
+							filterMatchMode="contains" headerText="Código" width="120">
 							<h:outputText value="#{listProductos.codigo}" />
 						</p:column>
 						<p:column filterBy="#{listProductos.codigoExterno}"
-							headerText="Código Externo" width="140" filterMatchMode="contains">
+							headerText="Código Externo" width="140"
+							filterMatchMode="contains">
 							<h:outputText value="#{listProductos.codigoExterno}" />
 						</p:column>
-						<p:column filterBy="#{listProductos.nombre}" headerText="Nombre:" filterMatchMode="contains">
+						<p:column filterBy="#{listProductos.nombre}" headerText="Nombre:"
+							filterMatchMode="contains">
 							<h:outputText value="#{listProductos.nombre}" />
 						</p:column>
 						<p:column filterBy="#{listProductos.descripcion}"
@@ -126,14 +129,14 @@
 						</p:column>
 						<p:column headerText="Agregar">
 							<p:commandButton icon="ui-icon-search" title="seleccion"
-								ajax="true" oncomplete="PF('productos').hide()"
+								ajax="true" oncomplete="PF('productos').hide()" onclick="PF('productosTable').clearFilters();"
 								actionListener="#{solicitudBean.seleccionaProducto(listProductos)}"
-								update=":formulario:panelProductos,:formulario:mensajes">
+								update=":formulario:panelProductos,:formulario:mensajes" >
 							</p:commandButton>
 						</p:column>
 					</p:dataTable>
 				</p:dialog>
-				
+
 			</h:form>
 		</ui:define>
 	</ui:composition>
