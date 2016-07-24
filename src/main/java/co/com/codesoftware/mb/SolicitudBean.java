@@ -36,7 +36,10 @@ public class SolicitudBean implements Serializable {
 	private List<ProductoGenericoEntity> productosGenericos;
 	private List<ProductoGenericoEntity> productosGenericosFilter;
 	private List<SolicitudProdEntity> productosSolicitud;
-	private List<ExistenciaXSedeEntity> listaExistencia;	
+	private List<ExistenciaXSedeEntity> listaExistencia;
+	private String codigoExterno;
+	private Integer cantidad;
+	private Integer cantidadTotal;
 
 	@PostConstruct
 	public void init() {
@@ -45,7 +48,7 @@ public class SolicitudBean implements Serializable {
 		FacesMessage message = null;
 		FacesContext context = FacesContext.getCurrentInstance();
 		this.entitySession = (DatosSessionEntity) context.getExternalContext().getSessionMap().get("dataSession");
-		buscaProductosGenericos();
+
 	}
 
 	/**
@@ -56,13 +59,14 @@ public class SolicitudBean implements Serializable {
 		this.solicitud.setFecha(con.dateToXMLGC(new Date()));
 		SedeEntity sede = new SedeEntity();
 		sede.setId(this.entitySession.getSede().getId());
+		sede.setName(this.entitySession.getSede().getName());
 		this.solicitud.setSede(sede);
 		UsuarioEntity usuario = new UsuarioEntity();
 		usuario.setId(this.entitySession.getDataUser().getId());
 		this.solicitud.setUsuario(usuario);
 		this.solicitud.setEstado("C");
-		this.solicitud = logica.insertaSolicitud(this.solicitud);
-		this.productosSolicitud = new ArrayList<>();
+		// this.solicitud = logica.insertaSolicitud(this.solicitud);
+		// this.productosSolicitud = new ArrayList<>();
 
 	}
 
@@ -71,9 +75,12 @@ public class SolicitudBean implements Serializable {
 	 */
 	public void buscaProductosGenericos() {
 		try {
-			ProductsLogic logic = new ProductsLogic();
-			this.productosGenericos = logic
-					.buscaProductosAplicacionGenericos(this.entitySession.getDataUser().getSede().getId());
+			if (this.productosGenericos == null) {
+				this.productosGenericos = new ArrayList<>();
+				ProductsLogic logic = new ProductsLogic();
+				this.productosGenericos = logic
+						.buscaProductosAplicacionGenericos(this.entitySession.getDataUser().getSede().getId());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -88,13 +95,53 @@ public class SolicitudBean implements Serializable {
 		if (this.productosSolicitud == null) {
 			this.productosSolicitud = new ArrayList<>();
 		}
-		if (!verificaListaProducto(entidad)) {
-			this.productosSolicitud.add(0, mapeaProducto(entidad));
+		this.codigoExterno = entidad.getCodigoExterno();
+		if (cantidad != null && cantidad > 0) {
+			consultaTotalExistencias(entidad.getId());
+			if (this.cantidadTotal == null || this.cantidadTotal < 1 || this.cantidadTotal < this.cantidad) {
+				this.setEnumer(enumer.ERROR);
+				messageBean("No existe las cantidades solicitadas en el inventario. Las cantidades que existen: "
+						+ this.cantidadTotal);
+			} else {
+				if (!verificaListaProducto(entidad)) {
+					this.productosSolicitud.add(0, mapeaProducto(entidad));
+					this.codigoExterno = "";
+					this.cantidad = 0;
+					this.enumer = enumer.SUCCESS;
+					messageBean("Producto " + entidad.getCodigoExterno() + " ingresado correctamente");
+				} else {
+					this.enumer = enumer.ERROR;
+					messageBean("Producto ya ingresado");
+				}
+			}
 		} else {
-			this.enumer = enumer.ERROR;
-			messageBean("Producto ya ingresado");
+			this.setEnumer(enumer.ERROR);
+			messageBean("Debe ingresar una cantidad valida");
 		}
 
+	}
+
+	public void seleccionaProductoTabla(String codigoExt) {
+		this.codigoExterno = codigoExt;
+		seleccionaProductoCodigoExt();
+	}
+
+	/**
+	 * metodo que consulta un producto por su codigo externo
+	 */
+	public void seleccionaProductoCodigoExt() {
+		ProductoGenericoEntity entidad = new ProductoGenericoEntity();
+		try {
+			entidad = logica.consultaProductoXCodigo(this.codigoExterno);
+			if (entidad != null && entidad.getCodigoExterno() != null) {
+				seleccionaProducto(entidad);
+			} else {
+				this.setEnumer(enumer.ERROR);
+				messageBean("No se encuentra el producto con ese codigo");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -122,15 +169,31 @@ public class SolicitudBean implements Serializable {
 	 */
 	public void validaProductos() {
 		try {
-			String mensaje = logica.ingresaProductosSolicitud(this.productosSolicitud, this.solicitud);
-			if ("OK".equalsIgnoreCase(mensaje)) {
-				this.enumer = ErrorEnum.SUCCESS;
-				messageBean("INSERTO SOLICTUD CORRECTAMENTE");
-				this.productosSolicitud = new ArrayList<>();
-				this.solicitud = new SolicitudEntity();
-			} else {
+			if (this.getProductosSolicitud() == null || this.productosSolicitud.isEmpty()) {
 				this.enumer = ErrorEnum.ERROR;
-				messageBean(mensaje);
+				messageBean("Debe ingresar por lo menos un producto");
+			} else if (this.solicitud == null || this.solicitud.getSede() == null) {
+				this.enumer = ErrorEnum.ERROR;
+				messageBean("Debe crear la solicitud");
+			} else {
+				SolicitudEntity sol = new SolicitudEntity();
+				sol = logica.insertaSolicitud(this.solicitud);
+				if (sol != null) {
+					String mensaje = logica.ingresaProductosSolicitud(this.productosSolicitud, sol);
+					if ("OK".equalsIgnoreCase(mensaje)) {
+						this.enumer = ErrorEnum.SUCCESS;
+						messageBean("INSERTO SOLICTUD CORRECTAMENTE");
+						this.productosSolicitud = new ArrayList<>();
+						this.solicitud = new SolicitudEntity();
+						this.solicitud.setComentario("");
+					} else {
+						this.enumer = ErrorEnum.ERROR;
+						messageBean(mensaje);
+					}
+				}else{
+					this.enumer = ErrorEnum.ERROR;
+					messageBean("Error al insertar solicitud");
+				}
 			}
 
 		} catch (Exception e) {
@@ -139,27 +202,13 @@ public class SolicitudBean implements Serializable {
 	}
 
 	/**
-	 * funcion que edita la celda
-	 * 
-	 * @param event
-	 */
-	public void editaCelda(SolicitudProdEntity objeto) {
-		if(objeto.getCantidadSolicitada()>objeto.getCantidadSede()){
-			this.enumer = ErrorEnum.ERROR;
-			messageBean("La cantidad solicitada supera las existencias");
-			recorreLista(objeto.getProducto().getId());
-			
-		}
-		
-	}
-	
-	/**
 	 * metodo que recorre la lista
+	 * 
 	 * @param idProducto
 	 */
-	public void recorreLista(Integer idProducto){
-		for(SolicitudProdEntity item:this.productosSolicitud){
-			if(item.getProducto().getId()==idProducto){
+	public void recorreLista(Integer idProducto) {
+		for (SolicitudProdEntity item : this.productosSolicitud) {
+			if (item.getProducto().getId() == idProducto) {
 				item.setCantidadSolicitada(item.getCantidadSede());
 				break;
 			}
@@ -182,6 +231,7 @@ public class SolicitudBean implements Serializable {
 			prod.setCodigoExt(entidad.getCodigoExterno());
 			objetoProd.setProducto(prod);
 			objetoProd.setSolicitud(this.solicitud);
+			objetoProd.setCantidadSolicitada(this.cantidad);
 			objetoProd.setCantidadEnvidada(0);
 			objetoProd.setCantidadSede(logica.consultaCantidadesXId(entidad.getId()));
 			SedeEntity sede = new SedeEntity();
@@ -192,8 +242,6 @@ public class SolicitudBean implements Serializable {
 		}
 		return objetoProd;
 	}
-
-	
 
 	/**
 	 * metodo que elimina un producto de la solicitud
@@ -208,16 +256,20 @@ public class SolicitudBean implements Serializable {
 			}
 		}
 	}
-	
+
 	/**
 	 * metodo que consulta las existencias en todas la sedes
+	 * 
 	 * @param idProducto
 	 * @return
 	 */
 
-	
-	public void consultaExistenciaSedes(Integer idProducto){
+	public void consultaExistenciaSedes(Integer idProducto) {
 		this.listaExistencia = logica.consultaExistenciasXId(idProducto);
+	}
+
+	public void consultaTotalExistencias(Integer idProducto) {
+		this.cantidadTotal = logica.consultaExistenciasTotales(idProducto);
 	}
 
 	public SolicitudEntity getSolicitud() {
@@ -260,7 +312,6 @@ public class SolicitudBean implements Serializable {
 		this.productosGenericos = productosGenericos;
 	}
 
-	
 	public List<ExistenciaXSedeEntity> getListaExistencia() {
 		return listaExistencia;
 	}
@@ -292,8 +343,7 @@ public class SolicitudBean implements Serializable {
 		default:
 			break;
 		}
-		
-		
+
 	}
 
 	public List<ProductoGenericoEntity> getProductosGenericosFilter() {
@@ -302,6 +352,22 @@ public class SolicitudBean implements Serializable {
 
 	public void setProductosGenericosFilter(List<ProductoGenericoEntity> productosGenericosFilter) {
 		this.productosGenericosFilter = productosGenericosFilter;
+	}
+
+	public String getCodigoExterno() {
+		return codigoExterno;
+	}
+
+	public void setCodigoExterno(String codigoExterno) {
+		this.codigoExterno = codigoExterno;
+	}
+
+	public Integer getCantidad() {
+		return cantidad;
+	}
+
+	public void setCantidad(Integer cantidad) {
+		this.cantidad = cantidad;
 	}
 
 }

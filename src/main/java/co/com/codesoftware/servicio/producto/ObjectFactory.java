@@ -39,6 +39,7 @@ public class ObjectFactory {
     private final static QName _ObtenerProductosYRecetasXCriterio_QNAME = new QName("http://producto.servicio.codesoftware.com.co/", "obtenerProductosYRecetasXCriterio");
     private final static QName _InsertaSolicitud_QNAME = new QName("http://producto.servicio.codesoftware.com.co/", "insertaSolicitud");
     private final static QName _ObtenerProductoXCodBarrasResponse_QNAME = new QName("http://producto.servicio.codesoftware.com.co/", "obtenerProductoXCodBarrasResponse");
+    private final static QName _ObtenerProdcutoGeneriXCodExtResponse_QNAME = new QName("http://producto.servicio.codesoftware.com.co/", "obtenerProdcutoGeneriXCodExtResponse");
     private final static QName _ActualizaSolicitudResponse_QNAME = new QName("http://producto.servicio.codesoftware.com.co/", "actualizaSolicitudResponse");
     private final static QName _ObtieneRecetasXSedeResponse_QNAME = new QName("http://producto.servicio.codesoftware.com.co/", "obtieneRecetasXSedeResponse");
     private final static QName _ObtieneRecetasXSede_QNAME = new QName("http://producto.servicio.codesoftware.com.co/", "obtieneRecetasXSede");
@@ -58,6 +59,7 @@ public class ObjectFactory {
     private final static QName _ObtenerProductosYRecetasXCriterioResponse_QNAME = new QName("http://producto.servicio.codesoftware.com.co/", "obtenerProductosYRecetasXCriterioResponse");
     private final static QName _ObtenerProductoXCodExt_QNAME = new QName("http://producto.servicio.codesoftware.com.co/", "obtenerProductoXCodExt");
     private final static QName _ObtenerCantidadesTotales_QNAME = new QName("http://producto.servicio.codesoftware.com.co/", "obtenerCantidadesTotales");
+    private final static QName _ObtenerProdcutoGeneriXCodExt_QNAME = new QName("http://producto.servicio.codesoftware.com.co/", "obtenerProdcutoGeneriXCodExt");
     private final static QName _ObtenerProductoXCodBarras_QNAME = new QName("http://producto.servicio.codesoftware.com.co/", "obtenerProductoXCodBarras");
     private final static QName _InsertaSolicitudResponse_QNAME = new QName("http://producto.servicio.codesoftware.com.co/", "insertaSolicitudResponse");
     private final static QName _ObtenerExistenciasProducto_QNAME = new QName("http://producto.servicio.codesoftware.com.co/", "obtenerExistenciasProducto");
@@ -200,6 +202,14 @@ public class ObjectFactory {
      */
     public ObtenerCantidadesTotales createObtenerCantidadesTotales() {
         return new ObtenerCantidadesTotales();
+    }
+
+    /**
+     * Create an instance of {@link ObtenerProdcutoGeneriXCodExt }
+     * 
+     */
+    public ObtenerProdcutoGeneriXCodExt createObtenerProdcutoGeneriXCodExt() {
+        return new ObtenerProdcutoGeneriXCodExt();
     }
 
     /**
@@ -392,6 +402,14 @@ public class ObjectFactory {
      */
     public ObtenerProductoXCodBarrasResponse createObtenerProductoXCodBarrasResponse() {
         return new ObtenerProductoXCodBarrasResponse();
+    }
+
+    /**
+     * Create an instance of {@link ObtenerProdcutoGeneriXCodExtResponse }
+     * 
+     */
+    public ObtenerProdcutoGeneriXCodExtResponse createObtenerProdcutoGeneriXCodExtResponse() {
+        return new ObtenerProdcutoGeneriXCodExtResponse();
     }
 
     /**
@@ -698,6 +716,15 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ObtenerProdcutoGeneriXCodExtResponse }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://producto.servicio.codesoftware.com.co/", name = "obtenerProdcutoGeneriXCodExtResponse")
+    public JAXBElement<ObtenerProdcutoGeneriXCodExtResponse> createObtenerProdcutoGeneriXCodExtResponse(ObtenerProdcutoGeneriXCodExtResponse value) {
+        return new JAXBElement<ObtenerProdcutoGeneriXCodExtResponse>(_ObtenerProdcutoGeneriXCodExtResponse_QNAME, ObtenerProdcutoGeneriXCodExtResponse.class, null, value);
+    }
+
+    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link ActualizaSolicitudResponse }{@code >}}
      * 
      */
@@ -866,6 +893,15 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://producto.servicio.codesoftware.com.co/", name = "obtenerCantidadesTotales")
     public JAXBElement<ObtenerCantidadesTotales> createObtenerCantidadesTotales(ObtenerCantidadesTotales value) {
         return new JAXBElement<ObtenerCantidadesTotales>(_ObtenerCantidadesTotales_QNAME, ObtenerCantidadesTotales.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ObtenerProdcutoGeneriXCodExt }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://producto.servicio.codesoftware.com.co/", name = "obtenerProdcutoGeneriXCodExt")
+    public JAXBElement<ObtenerProdcutoGeneriXCodExt> createObtenerProdcutoGeneriXCodExt(ObtenerProdcutoGeneriXCodExt value) {
+        return new JAXBElement<ObtenerProdcutoGeneriXCodExt>(_ObtenerProdcutoGeneriXCodExt_QNAME, ObtenerProdcutoGeneriXCodExt.class, null, value);
     }
 
     /**

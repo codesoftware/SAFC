@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import co.com.codesoftware.servicio.producto.ExistenciaXSedeEntity;
+import co.com.codesoftware.servicio.producto.ProductoGenericoEntity;
 import co.com.codesoftware.servicio.producto.RespuestaEntity;
 import co.com.codesoftware.servicio.producto.SolicitudEntity;
 import co.com.codesoftware.servicio.producto.SolicitudProdEntity;
@@ -24,9 +25,12 @@ public class SolicitudLogica implements WSGeneralInterface {
 			if (res.getCodigoRespuesta() == 1) {
 				respuesta = conexionWSProd().getPortProd().obtenerSolicitudXfiltro(solicitud.getFecha(),
 						solicitud.getSede().getId(), solicitud.getUsuario().getId());
+			}else{
+				respuesta=null;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			respuesta=null;
 		}
 		return respuesta;
 	}
@@ -71,7 +75,9 @@ public class SolicitudLogica implements WSGeneralInterface {
 	public String ingresaProductosSolicitud(List<SolicitudProdEntity> productos, SolicitudEntity solicitud) {
 		String respuesta = "OK";
 		try {
-			respuesta = validaProductos(productos, solicitud);
+			for(SolicitudProdEntity item:productos){
+				item.setSolicitud(solicitud);
+			}
 			if ("OK".equalsIgnoreCase(respuesta)) {
 				RespuestaEntity respuestaSW = conexionWSProd().getPortProd().insertaProductosSolicitud(productos);
 				respuesta = respuestaSW.getDescripcionRespuesta();
@@ -117,5 +123,41 @@ public class SolicitudLogica implements WSGeneralInterface {
 			e.printStackTrace();
 		}
 		 return lista;
+	}
+	
+	
+	/**
+	 * metodo que consulta las existencias totales
+	 * @param idProducto
+	 * @return
+	 */
+	public Integer consultaExistenciasTotales(Integer idProducto){
+		 List<ExistenciaXSedeEntity> lista = new ArrayList<ExistenciaXSedeEntity>();
+		 Integer respuesta = 0;
+		 try {
+			lista =conexionWSProd().getPortProd().obtenerCantidadesXProducto(idProducto);
+			if(lista!=null && !lista.isEmpty()){
+				for(ExistenciaXSedeEntity item:lista){
+					respuesta += item.getExistencias();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		 return respuesta;
+	}
+	
+	/**
+	 * metodo que consulta un producto por el código externo
+	 * @param codigo
+	 * @return
+	 */
+	
+	public ProductoGenericoEntity consultaProductoXCodigo(String codigo){
+		try {
+			return conexionWSProd().getPortProd().obtenerProdcutoGeneriXCodExt(codigo);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }

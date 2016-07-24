@@ -1,5 +1,5 @@
 
-package co.com.codesoftware.servicio.facturacion;
+package co.com.codesoftware.servicio.producto;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -8,16 +8,16 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Clase Java para obtenerHistorialFacXID complex type.
+ * <p>Clase Java para obtenerProdcutoGeneriXCodExt complex type.
  * 
  * <p>El siguiente fragmento de esquema especifica el contenido que se espera que haya en esta clase.
  * 
  * <pre>
- * &lt;complexType name="obtenerHistorialFacXID">
+ * &lt;complexType name="obtenerProdcutoGeneriXCodExt">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="IdFactura" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
+ *         &lt;element name="codigoExterno" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -27,36 +27,36 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "obtenerHistorialFacXID", propOrder = {
-    "idFactura"
+@XmlType(name = "obtenerProdcutoGeneriXCodExt", propOrder = {
+    "codigoExterno"
 })
-public class ObtenerHistorialFacXID {
+public class ObtenerProdcutoGeneriXCodExt {
 
-    @XmlElement(name = "IdFactura")
-    protected Integer idFactura;
+    @XmlElement(required = true)
+    protected String codigoExterno;
 
     /**
-     * Obtiene el valor de la propiedad idFactura.
+     * Obtiene el valor de la propiedad codigoExterno.
      * 
      * @return
      *     possible object is
-     *     {@link Integer }
+     *     {@link String }
      *     
      */
-    public Integer getIdFactura() {
-        return idFactura;
+    public String getCodigoExterno() {
+        return codigoExterno;
     }
 
     /**
-     * Define el valor de la propiedad idFactura.
+     * Define el valor de la propiedad codigoExterno.
      * 
      * @param value
      *     allowed object is
-     *     {@link Integer }
+     *     {@link String }
      *     
      */
-    public void setIdFactura(Integer value) {
-        this.idFactura = value;
+    public void setCodigoExterno(String value) {
+        this.codigoExterno = value;
     }
 
 }
