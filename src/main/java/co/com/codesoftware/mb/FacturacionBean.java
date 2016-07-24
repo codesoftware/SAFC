@@ -768,6 +768,7 @@ public class FacturacionBean implements Serializable {
 			} else {
 				context.execute("PF('viewPrice').show();");
 			}
+			this.aplicaRetencion = "N";
 		} else {
 			this.setEnumer(ErrorEnum.ERROR);
 			messageBean(validate);
