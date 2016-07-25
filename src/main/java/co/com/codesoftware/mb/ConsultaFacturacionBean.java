@@ -100,7 +100,7 @@ public class ConsultaFacturacionBean {
 			idCliente = clienteSelect.getId();
 		}
 		this.facturas = logic.consultaFacturasRangoFechas(fechaInicio, fechaFinal, idFactura,""+idCliente,codigoExterno);
-		if (this.facturas == null) {
+		if (this.facturas == null || this.facturas.size() == 0) {
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error!", "La consulta no arrojo ningun resultado"));
 		}
 
