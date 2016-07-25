@@ -1,7 +1,6 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui"
-xmlns:pe="http://primefaces.org/ui/extensions">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui" xmlns:pe="http://primefaces.org/ui/extensions">
 
 <h:head>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0, user-scalable=yes" />
@@ -35,6 +34,14 @@ xmlns:pe="http://primefaces.org/ui/extensions">
 						window.open("/SAFC/resources/images/facturas/factura_"
 								+ idFact + ".pdf", "_blank",
 								"resizable,scrollbars");
+					}
+				}
+				
+				function cambiaTipoPago(valor){
+					if(valor == 'M'){
+						document.getElementById('pagoMixto').style.display = '';
+					}else{
+						document.getElementById('pagoMixto').style.display = 'none';
 					}
 				}
 			</script>
@@ -128,8 +135,8 @@ xmlns:pe="http://primefaces.org/ui/extensions">
 			</h:form>
 
 			<h:form id="searchProd">
-				<p:dialog header="Consulta de Productos" modal="true" widgetVar="searchProductos" closeOnEscape="true" >
-					<p:dataTable var="listProductos" value="#{facturacionBean.productosGenericos}" reflow="true" rows="5" widgetVar="productosTable" paginator="true" emptyMessage="No hay productos que coincidan con la busqueda" 
+				<p:dialog header="Consulta de Productos" modal="true" widgetVar="searchProductos" closeOnEscape="true">
+					<p:dataTable var="listProductos" value="#{facturacionBean.productosGenericos}" reflow="true" rows="5" widgetVar="productosTable" paginator="true" emptyMessage="No hay productos que coincidan con la busqueda"
 						filteredValue="#{facturacionBean.productosFilter}" id="tablaProductos">
 						<p:column filterBy="#{listProductos.codigo}" headerText="Código" width="120">
 							<h:outputText value="#{listProductos.codigo}" />
@@ -216,7 +223,7 @@ xmlns:pe="http://primefaces.org/ui/extensions">
 						<div class="col-md-12 col-xs-12 col-sm-12 alert-info text-center" style="padding: 2px;">
 							<h4>Busqueda de Productos</h4>
 						</div>
-						<div class="col-md-6 col-xs-12 col-sm-12" style="display: none;" >
+						<div class="col-md-6 col-xs-12 col-sm-12" style="display: none;">
 							<div class="form-group">
 								<p:outputLabel value="Codigo App:" />
 								<p:inputText value="#{facturacionBean.codigoAdd}" styleClass="form-control" onkeyup="" onkeypress="if (event.keyCode == 13){test(); return false;}" id="codProducto" />
@@ -224,14 +231,15 @@ xmlns:pe="http://primefaces.org/ui/extensions">
 						</div>
 						<div class="col-md-6 col-xs-12 col-sm-12">
 							<div class="form-group">
-								<p:outputLabel value="Codigo Externo:&nbsp;&nbsp;" style="width:130px;text-align:right;"  />
+								<p:outputLabel value="Codigo Externo:&nbsp;&nbsp;" style="width:130px;text-align:right;" />
 								<p:inputText value="#{facturacionBean.codigoExt}" onkeypress="if (event.keyCode == 13){document.getElementById('formInicio:btnConsultaCodExt').click(); return false;}" />
-								<p:commandButton value="BUSCAR" actionListener="#{facturacionBean.searchProdCodExt}" update="precProdBusq,nomProdBusq,codProdBusq,codProducto" oncomplete="mostrarPanelProd();" onsuccess="document.getElementById('formInicio:cantidadProductos').focus();" id="btnConsultaCodExt" style="display:none;"></p:commandButton>
+								<p:commandButton value="BUSCAR" actionListener="#{facturacionBean.searchProdCodExt}" update="precProdBusq,nomProdBusq,codProdBusq,codProducto" oncomplete="mostrarPanelProd();"
+									onsuccess="document.getElementById('formInicio:cantidadProductos').focus();" id="btnConsultaCodExt" style="display:none;"></p:commandButton>
 							</div>
 						</div>
 						<div class="col-md-6 col-xs-12 col-sm-12">
 							<div class="form-group">
-								<p:outputLabel value="Codigo Pedido:&nbsp;&nbsp;" style="width:130px;text-align:right;"  />
+								<p:outputLabel value="Codigo Pedido:&nbsp;&nbsp;" style="width:130px;text-align:right;" />
 								<p:inputText value="#{facturacionBean.idPedido}" onkeyup="" onkeypress="if (event.keyCode == 13){buscaPedido(); return false;}" id="pedidoId" widgetVar="codigoPedido" />
 								<p:outputLabel value="&nbsp;&nbsp;"></p:outputLabel>
 								<p:commandButton actionListener="#{facturacionBean.consultaPedidoXFacturar}" value="Buscar" onclick="PF('viewPedidos').show();" update=":consultaPedido:tablaPedidos" styleClass="GreenButton" />
@@ -240,26 +248,43 @@ xmlns:pe="http://primefaces.org/ui/extensions">
 						<div class="col-md-6 col-xs-12 col-sm-12">
 							<div class="form-group">
 								<p:outputLabel value="Nombre:&nbsp;&nbsp;" style="width:130px;text-align:right;" />
-								<p:autoComplete value="#{facturacionBean.codigoAddLs}" id="prodXNombre" completeMethod="#{facturacionBean.consultaAutComNombreProd}"  converter="productoGenericoConverter" var="item" itemLabel="#{item.nombre}" itemValue="#{item.codigo}" >
-									 <p:ajax event="itemSelect" listener="#{facturacionBean.buscaProdAutoComplete}" update="precProdBusq,nomProdBusq,codProdBusq,codProducto" oncomplete="mostrarPanelProd();" onsuccess="document.getElementById('formInicio:cantidadProductos').focus();" />
+								<p:autoComplete value="#{facturacionBean.codigoAddLs}" id="prodXNombre" completeMethod="#{facturacionBean.consultaAutComNombreProd}" converter="productoGenericoConverter" var="item" itemLabel="#{item.nombre}" itemValue="#{item.codigo}">
+									<p:ajax event="itemSelect" listener="#{facturacionBean.buscaProdAutoComplete}" update="precProdBusq,nomProdBusq,codProdBusq,codProducto" oncomplete="mostrarPanelProd();"
+										onsuccess="document.getElementById('formInicio:cantidadProductos').focus();" />
 								</p:autoComplete>
 							</div>
 						</div>
 						<div class="col-md-6 col-xs-12 col-sm-12">
 							<div class="form-group">
 								<p:outputLabel value="Cantidad:&nbsp;&nbsp;" style="width:130px;text-align:right;" />
-								<p:inputText value="#{facturacionBean.cantidad}" id="cantidadProductos"  onkeypress="if (event.keyCode == 13){addProdFac(); return false;}">
+								<p:inputText value="#{facturacionBean.cantidad}" id="cantidadProductos" onkeypress="if (event.keyCode == 13){addProdFac(); return false;}">
 								</p:inputText>
+							</div>
+						</div>
+						<div class="col-md-6 col-xs-12 col-sm-12">
+							<div class="form-group">
+								<p:outputLabel value="Tipo de Pago" style="width:130px;text-align:right;" />
+								<h:selectOneMenu value="#{facturacionBean.tipoPago}" styleClass="form-control" style="width:50%" onchange="cambiaTipoPago(this.value)">
+									<f:selectItem itemValue="E" itemLabel="EFECTIVO" />
+									<f:selectItem itemValue="T" itemLabel="TARJETA" />
+									<f:selectItem itemValue="M" itemLabel="MIXTO" />
+								</h:selectOneMenu>
+							</div>
+						</div>
+						<div class="col-md-6 col-xs-12 col-sm-12 ">
+							<div class="form-group" style="display: none;" id="pagoMixto">
+								<p:outputLabel value="PAGO EFECTIVO" style="width:130px;text-align:right;" />
+								<pe:inputNumber value="#{facturacionBean.pagoEfectivo}" decimalPlaces="2" symbol="$"></pe:inputNumber>
 							</div>
 						</div>
 						<div class="col-md-2 col-xs-12 col-sm-12 oculto" style="display: none;">
 							<div class="form-group">
-								<p:outputLabel value="#{facturacionBean.product.code}"  id="codProdBusq"/>
+								<p:outputLabel value="#{facturacionBean.product.code}" id="codProdBusq" />
 							</div>
 						</div>
 						<div class="col-md-3 col-xs-12 col-sm-12 oculto" style="display: none;">
 							<div class="form-group">
-								<p:outputLabel value="#{facturacionBean.product.name}" id="nomProdBusq"/>
+								<p:outputLabel value="#{facturacionBean.product.name}" id="nomProdBusq" />
 							</div>
 						</div>
 						<div class="col-md-3 col-xs-12 col-sm-12 oculto" style="display: none;">
@@ -330,7 +355,7 @@ xmlns:pe="http://primefaces.org/ui/extensions">
 							<f:convertNumber pattern="#,##0.00"></f:convertNumber>
 						</h:outputText>
 						<h:outputText value="Pago con:" />
-						<pe:inputNumber id="priceTotal" value="#{facturacionBean.totalCliente}" required="true" requiredMessage="Es obligatorio el valor que da el cliente" style="font-size:18px;width:100%;" size="30" decimalPlaces="2" symbol="$" >
+						<pe:inputNumber id="priceTotal" value="#{facturacionBean.totalCliente}" required="true" requiredMessage="Es obligatorio el valor que da el cliente" style="font-size:18px;width:100%;" size="30" decimalPlaces="2" symbol="$">
 							<p:ajax event="change" update="totalCambio,messagesPagoFactura" listener="#{facturacionBean.getCambio}" />
 						</pe:inputNumber>
 						<h:outputText value="Cambio: $ " />
@@ -349,8 +374,8 @@ xmlns:pe="http://primefaces.org/ui/extensions">
 
 							</div>
 							<div class="col-md-5 col-sm-4 col-xs-4">
-								<p:commandButton value="Registrar sin Factura" update="formInicio:listFact,formHeader:tablaClienteComprador,formHeader:total,viewPrice:totalSum,viewBill:totResFac,viewBill:tableName,viewBill:totalResEfectivo,viewBill:totalResCambio" ajax="true"
-									actionListener="#{facturacionBean.registrar}" onclick="PF('viewPrice').hide();" styleClass="GreenButton" style="color:white;">
+								<p:commandButton value="Registrar sin Factura" update="formInicio:listFact,formHeader:tablaClienteComprador,formHeader:total,viewPrice:totalSum,viewBill:totResFac,viewBill:tableName,viewBill:totalResEfectivo,viewBill:totalResCambio"
+									ajax="true" actionListener="#{facturacionBean.registrar}" onclick="PF('viewPrice').hide();" styleClass="GreenButton" style="color:white;">
 								</p:commandButton>
 							</div>
 							<div class="col-md-3 col-sm-4 col-xs-4">
@@ -375,7 +400,7 @@ xmlns:pe="http://primefaces.org/ui/extensions">
 								<p:column headerText="Precio total" width="30%">
 									<p:outputLabel value="#{listproduct.valorTotal}" />
 								</p:column>
-									<p:column headerText="Valor iva" width="30%">
+								<p:column headerText="Valor iva" width="30%">
 									<p:outputLabel value="#{listproduct.valorIvaTotal}" />
 								</p:column>
 							</p:dataTable>
@@ -448,8 +473,8 @@ xmlns:pe="http://primefaces.org/ui/extensions">
 			<h:form id="form">
 				<p:dialog header="¿En esta venta le cobraran retencion en la fuente?" widgetVar="viewRetencion" modal="true" width="700">
 					¿El costo de la factura excede $803.000 le aplicaran retencion en la fuente?.
-					<p:commandButton value="SI" actionListener="#{facturacionBean.validaRetefuente('S')}" oncomplete="PF('viewRetencion').hide();" style="btn" ></p:commandButton>
-					<p:commandButton value="NO" actionListener="#{facturacionBean.validaRetefuente('N')}" oncomplete="PF('viewRetencion').hide();" style="btn" ></p:commandButton>
+					<p:commandButton value="SI" actionListener="#{facturacionBean.validaRetefuente('S')}" oncomplete="PF('viewRetencion').hide();" style="btn"></p:commandButton>
+					<p:commandButton value="NO" actionListener="#{facturacionBean.validaRetefuente('N')}" oncomplete="PF('viewRetencion').hide();" style="btn"></p:commandButton>
 				</p:dialog>
 			</h:form>
 		</ui:define>

@@ -77,6 +77,9 @@ public class FacturacionBean implements Serializable {
 	private String buscaNombre;
 	// Campo en el cual se almacena el codigo del autocomplete
 	private String codigoAddLs;
+	// Variables utilizadas para la realizacion de pagos con tarjeta
+	private String tipoPago;
+	private BigDecimal pagoEfectivo;
 
 	public Integer getIdPedido() {
 		return idPedido;
@@ -563,7 +566,7 @@ public class FacturacionBean implements Serializable {
 			messageBean(validate);
 			bandera = "no";
 		} else {
-			
+
 			ExternalContext tmpEC;
 			tmpEC = FacesContext.getCurrentInstance().getExternalContext();
 			String realPath = tmpEC.getRealPath("/resources/images/products/");
@@ -664,7 +667,8 @@ public class FacturacionBean implements Serializable {
 				this.listProd = new ArrayList<GenericProductEntity>();
 			}
 			FacturacionLogic logica = new FacturacionLogic();
-			BigDecimal precio = logica.consultaProductoXCodigo(producto.getCodigo(),this.entitySession.getSede().getId()).getPrecio();
+			BigDecimal precio = logica
+					.consultaProductoXCodigo(producto.getCodigo(), this.entitySession.getSede().getId()).getPrecio();
 			producto.setPrecio(precio);
 			this.product = setDataEntityGeneric(producto);
 			int exist = existProduct();
@@ -1035,6 +1039,22 @@ public class FacturacionBean implements Serializable {
 
 	public void setFact(FacturaEntity fact) {
 		this.fact = fact;
+	}
+
+	public String getTipoPago() {
+		return tipoPago;
+	}
+
+	public void setTipoPago(String tipoPago) {
+		this.tipoPago = tipoPago;
+	}
+
+	public BigDecimal getPagoEfectivo() {
+		return pagoEfectivo;
+	}
+
+	public void setPagoEfectivo(BigDecimal pagoEfectivo) {
+		this.pagoEfectivo = pagoEfectivo;
 	}
 
 }
