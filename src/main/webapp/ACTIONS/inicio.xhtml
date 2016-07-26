@@ -40,8 +40,13 @@
 				function cambiaTipoPago(valor){
 					if(valor == 'M'){
 						document.getElementById('pagoMixto').style.display = '';
+						document.getElementById('divVoucher').style.display = '';
+					}else if(valor == 'E'){
+						document.getElementById('pagoMixto').style.display = 'none';
+						document.getElementById('divVoucher').style.display = 'none';
 					}else{
 						document.getElementById('pagoMixto').style.display = 'none';
+						document.getElementById('divVoucher').style.display = '';
 					}
 				}
 			</script>
@@ -271,7 +276,13 @@
 								</h:selectOneMenu>
 							</div>
 						</div>
-						<div class="col-md-6 col-xs-12 col-sm-12 ">
+						<div class="col-md-3 col-xs-6 col-sm-6">
+							<div class="form-group" style="display: none;" id="divVoucher">
+								<p:outputLabel value="ID VOUCHER" style="width:130px;text-align:right;" />
+								<p:inputText value="#{facturacionBean.idVoucher}"></p:inputText>
+							</div>
+						</div>
+						<div class="col-md-3 col-xs-6 col-sm-6">
 							<div class="form-group" style="display: none;" id="pagoMixto">
 								<p:outputLabel value="PAGO EFECTIVO" style="width:130px;text-align:right;" />
 								<pe:inputNumber value="#{facturacionBean.pagoEfectivo}" decimalPlaces="2" symbol="$"></pe:inputNumber>

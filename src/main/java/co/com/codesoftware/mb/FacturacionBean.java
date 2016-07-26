@@ -80,6 +80,7 @@ public class FacturacionBean implements Serializable {
 	// Variables utilizadas para la realizacion de pagos con tarjeta
 	private String tipoPago;
 	private BigDecimal pagoEfectivo;
+	private String idVoucher;
 
 	public Integer getIdPedido() {
 		return idPedido;
@@ -268,8 +269,7 @@ public class FacturacionBean implements Serializable {
 			this.entitySession = (DatosSessionEntity) context.getExternalContext().getSessionMap().get("dataSession");
 			this.permisosUsuario = (String) context.getExternalContext().getSessionMap().get("permisosUsuario");
 			if (entitySession == null) {
-				message = new FacesMessage(FacesMessage.SEVERITY_WARN, "Error",
-						"Esta intentando a un sitio no permitido porfavor realice el login primero");
+				message = new FacesMessage(FacesMessage.SEVERITY_WARN, "Error", "Esta intentando a un sitio no permitido porfavor realice el login primero");
 				context.getExternalContext().redirect("../index.jsf");
 			}
 
@@ -283,6 +283,11 @@ public class FacturacionBean implements Serializable {
 	 */
 
 	public void facturar() {
+		if("T".equalsIgnoreCase(this.tipoPago)){
+			this.totalCliente = this.total;
+		}else if("M".equalsIgnoreCase(this.tipoPago)){
+			this.totalCliente = this.totalCliente.add(this.pagoEfectivo);
+		}
 		int res = total.compareTo(totalCliente);
 		if (res == 0 || res == -1) {
 			checkProducts("1");
@@ -296,6 +301,11 @@ public class FacturacionBean implements Serializable {
 	 * metodo que ejecuta la facturacion sin imprimir el pdf
 	 */
 	public void registrar() {
+		if("T".equalsIgnoreCase(this.tipoPago)){
+			this.totalCliente = this.total;
+		}else if("M".equalsIgnoreCase(this.tipoPago)){
+			this.totalCliente = this.totalCliente.add(this.pagoEfectivo);
+		}
 		// Realizo validacion del precio
 		int res = total.compareTo(totalCliente);
 		if (res == 0 || res == -1) {
@@ -324,8 +334,7 @@ public class FacturacionBean implements Serializable {
 		ProductsLogic objLogic = new ProductsLogic();
 		try {
 			PrecioProductoEntity objPrecioProd = new PrecioProductoEntity();
-			objPrecioProd = objLogic.consultaProductoCodExt(codigoExt,
-					this.entitySession.getDataUser().getSede().getId());
+			objPrecioProd = objLogic.consultaProductoCodExt(codigoExt, this.entitySession.getDataUser().getSede().getId());
 			if (objPrecioProd == null) {
 				this.setEnumer(ErrorEnum.ERROR);
 				this.messageBean("La consulta no arrojo ningun resultado");
@@ -385,13 +394,11 @@ public class FacturacionBean implements Serializable {
 					int exist = existProduct();
 					if (exist > -1) {
 						this.listProd.get(exist).setAmount(this.listProd.get(exist).getAmount() + cantidad);
-						if (log.updatePrice(this.listProd.get(exist).getPrice(),
-								this.listProd.get(exist).getAmount()) == null) {
+						if (log.updatePrice(this.listProd.get(exist).getPrice(), this.listProd.get(exist).getAmount()) == null) {
 							this.setEnumer(ErrorEnum.ERROR);
 							messageBean("Al producto no se le ha parametrizado el precio");
 						} else {
-							this.listProd.get(exist).setTotalPrice(log.updatePrice(this.listProd.get(exist).getPrice(),
-									this.listProd.get(exist).getAmount()));
+							this.listProd.get(exist).setTotalPrice(log.updatePrice(this.listProd.get(exist).getPrice(), this.listProd.get(exist).getAmount()));
 						}
 					} else {
 						product.setAmount(this.cantidad);
@@ -511,8 +518,7 @@ public class FacturacionBean implements Serializable {
 		BigDecimal result = new BigDecimal("0");
 		for (int i = 0; i < this.listProd.size(); i++) {
 			FacturacionLogic factuacionLogic = new FacturacionLogic();
-			BigDecimal aux = factuacionLogic.updatePrice(this.listProd.get(i).getPrice(),
-					this.listProd.get(i).getAmount());
+			BigDecimal aux = factuacionLogic.updatePrice(this.listProd.get(i).getPrice(), this.listProd.get(i).getAmount());
 			if (aux.intValue() == 0) {
 				this.setEnumer(ErrorEnum.ERROR);
 				messageBean("Producto sin parametrizar precio.");
@@ -542,8 +548,7 @@ public class FacturacionBean implements Serializable {
 	public void buscaProductosGenericos() {
 		try {
 			ProductsLogic logic = new ProductsLogic();
-			this.productosGenericos = logic
-					.buscaProductosAplicacionGenericos(this.entitySession.getDataUser().getSede().getId());
+			this.productosGenericos = logic.buscaProductosAplicacionGenericos(this.entitySession.getDataUser().getSede().getId());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -559,8 +564,7 @@ public class FacturacionBean implements Serializable {
 		bandera = "no";
 		FacturacionLogic logic = new FacturacionLogic();
 		// valida si no hay productos o si el cliente esta nulo
-		String validate = logic.validaDatos(this.listProd,
-				UsuarioToFacturacionMp.clienteEntityMp(clientebean.getCliente()), this.summary);
+		String validate = logic.validaDatos(this.listProd, UsuarioToFacturacionMp.clienteEntityMp(clientebean.getCliente()), this.summary);
 		if (!"OK".equalsIgnoreCase(validate)) {
 			this.setEnumer(ErrorEnum.ERROR);
 			messageBean(validate);
@@ -574,10 +578,8 @@ public class FacturacionBean implements Serializable {
 			// this.clientebean.getCliente(), realPath, this.entitySession,
 			// type, this.totalChange.toString(), this.totalCliente.toString(),
 			// this.summary);
-			String rta = logic.facturarAvanzada(this.listProd,
-					UsuarioToFacturacionMp.clienteEntityMp(this.clientebean.getCliente()), realPath, this.entitySession,
-					type, this.totalChange.toString(), this.totalCliente.toString(), this.summary, this.idPedido,
-					this.aplicaRetencion);
+			String rta = logic.facturarAvanzada(this.listProd, UsuarioToFacturacionMp.clienteEntityMp(this.clientebean.getCliente()), realPath, this.entitySession, type, this.totalChange.toString(), this.totalCliente.toString(), this.summary,
+					this.idPedido, this.aplicaRetencion);
 			boolean valida = rta.contains("ERROR");
 			if (!valida) {
 				if ("1".equalsIgnoreCase(type)) {
@@ -643,8 +645,7 @@ public class FacturacionBean implements Serializable {
 
 			if (exist > -1) {
 				this.listProd.get(exist).setAmount(this.listProd.get(exist).getAmount() + 1);
-				this.listProd.get(exist).setTotalPrice(this.listProd.get(exist).getPrice()
-						.multiply(new BigDecimal(this.listProd.get(exist).getAmount()), mc));
+				this.listProd.get(exist).setTotalPrice(this.listProd.get(exist).getPrice().multiply(new BigDecimal(this.listProd.get(exist).getAmount()), mc));
 			} else {
 				this.listProd.add(product);
 			}
@@ -667,15 +668,13 @@ public class FacturacionBean implements Serializable {
 				this.listProd = new ArrayList<GenericProductEntity>();
 			}
 			FacturacionLogic logica = new FacturacionLogic();
-			BigDecimal precio = logica
-					.consultaProductoXCodigo(producto.getCodigo(), this.entitySession.getSede().getId()).getPrecio();
+			BigDecimal precio = logica.consultaProductoXCodigo(producto.getCodigo(), this.entitySession.getSede().getId()).getPrecio();
 			producto.setPrecio(precio);
 			this.product = setDataEntityGeneric(producto);
 			int exist = existProduct();
 			if (exist > -1) {
 				this.listProd.get(exist).setAmount(this.listProd.get(exist).getAmount() + 1);
-				this.listProd.get(exist).setTotalPrice(this.listProd.get(exist).getPrice()
-						.multiply(new BigDecimal(this.listProd.get(exist).getAmount()), mc));
+				this.listProd.get(exist).setTotalPrice(this.listProd.get(exist).getPrice().multiply(new BigDecimal(this.listProd.get(exist).getAmount()), mc));
 			} else {
 				product.setTotalPrice(producto.getPrecio());
 				this.listProd.add(product);
@@ -753,6 +752,42 @@ public class FacturacionBean implements Serializable {
 			this.totalChange = new BigDecimal(0);
 		}
 	}
+	/**
+	 * Funcion con la cual se validan los datos que se deben tener cuando se paga con tarjeta
+	 * @return
+	 */
+	public boolean validaDatosCredito(){
+		try {
+			if("E".equalsIgnoreCase(this.tipoPago)){
+				
+			}else if("T".equalsIgnoreCase(this.tipoPago)){
+				if("".equalsIgnoreCase(this.idVoucher)){
+					this.setEnumer(ErrorEnum.ERROR);
+					messageBean("Los pagos con Tarjeta deben referenciar un id de vaucher");
+					return false;
+				}
+			}else if("M".equalsIgnoreCase(this.tipoPago)){
+				if("".equalsIgnoreCase(this.idVoucher)){
+					this.setEnumer(ErrorEnum.ERROR);
+					messageBean("Los pagos Mixtos deben referenciar un id de vaucher");
+					return false;
+				}
+				if(this.pagoEfectivo == null){
+					this.setEnumer(ErrorEnum.ERROR);
+					messageBean("En el pago mixto no puede ser nulo ");
+				}else{
+					if(this.pagoEfectivo.compareTo(new BigDecimal(0))==0 ){
+						this.setEnumer(ErrorEnum.ERROR);
+						messageBean("El campo de pago en efectivo no puede ser cero ");
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
 
 	/**
 	 * Funcion donde se controla que la factura este lista para mostrar el pop
@@ -760,22 +795,24 @@ public class FacturacionBean implements Serializable {
 	 */
 
 	public void viewTotalPrice() {
-		FacturacionLogic logic = new FacturacionLogic();
-		// valida si no hay productos o si el cliente esta nulo;
-		String validate = logic.validaDatos(this.listProd,
-				UsuarioToFacturacionMp.clienteEntityMp(clientebean.getCliente()), this.summary);
-		if ("Ok".equalsIgnoreCase(validate)) {
-			BigDecimal baseIva = total.divide(new BigDecimal("1.16"), 8, RoundingMode.HALF_UP);
-			RequestContext context = RequestContext.getCurrentInstance();
-			if (baseIva.compareTo(new BigDecimal("803000")) >= 0) {
-				context.execute("PF('viewRetencion').show();");
+		boolean valida = this.validaDatosCredito();
+		if(valida){
+			FacturacionLogic logic = new FacturacionLogic();
+			// valida si no hay productos o si el cliente esta nulo;
+			String validate = logic.validaDatos(this.listProd, UsuarioToFacturacionMp.clienteEntityMp(clientebean.getCliente()), this.summary);
+			if ("Ok".equalsIgnoreCase(validate)) {
+				BigDecimal baseIva = total.divide(new BigDecimal("1.16"), 8, RoundingMode.HALF_UP);
+				RequestContext context = RequestContext.getCurrentInstance();
+				if (baseIva.compareTo(new BigDecimal("803000")) >= 0) {
+					context.execute("PF('viewRetencion').show();");
+				} else {
+					context.execute("PF('viewPrice').show();");
+				}
+				this.aplicaRetencion = "N";
 			} else {
-				context.execute("PF('viewPrice').show();");
+				this.setEnumer(ErrorEnum.ERROR);
+				messageBean(validate);
 			}
-			this.aplicaRetencion = "N";
-		} else {
-			this.setEnumer(ErrorEnum.ERROR);
-			messageBean(validate);
 		}
 	}
 
@@ -795,16 +832,13 @@ public class FacturacionBean implements Serializable {
 	public void messageBean(String message) {
 		switch (this.enumer) {
 		case ERROR:
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error!", message));
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error!", message));
 			break;
 		case FATAL:
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_FATAL, "Fatal!", "Error de sistema"));
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, "Fatal!", "Error de sistema"));
 			break;
 		case SUCCESS:
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_INFO, "Ok!", message));
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Ok!", message));
 			break;
 
 		default:
@@ -1055,6 +1089,14 @@ public class FacturacionBean implements Serializable {
 
 	public void setPagoEfectivo(BigDecimal pagoEfectivo) {
 		this.pagoEfectivo = pagoEfectivo;
+	}
+
+	public String getIdVoucher() {
+		return idVoucher;
+	}
+
+	public void setIdVoucher(String idVoucher) {
+		this.idVoucher = idVoucher;
 	}
 
 }
