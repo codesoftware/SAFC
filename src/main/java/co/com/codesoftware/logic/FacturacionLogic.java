@@ -188,7 +188,8 @@ public class FacturacionLogic implements WSGeneralInterface {
 	 */
 
 	public String facturarAvanzada(List<GenericProductEntity> list, ClienteEntity cliente, String path,
-			DatosSessionEntity session, String type, String cambio, String pago, String domicilio, Integer idPedido,String reteFuente) {
+			DatosSessionEntity session, String type, String cambio, String pago, String domicilio, 
+			Integer idPedido,String reteFuente, String tipoPago, String idVoucher,BigDecimal pagoEfectivo) {
 		String rta = "";
 		FacturacionGenEntity fact = new FacturacionGenEntity();
 		RespuestaFacturacion res = new RespuestaFacturacion();
@@ -204,6 +205,9 @@ public class FacturacionLogic implements WSGeneralInterface {
 				idPedido = 0;
 			}
 			fact.setIdPedido(idPedido);
+			fact.setTipoPago(tipoPago);
+			fact.setIdVoucher(idVoucher);
+			fact.setPagoTarjeta(pagoEfectivo);
 			res = conexionWSFacturacion().getPortFacturacion().facturarAvanzada(fact);
 			if ("error".equalsIgnoreCase(res.getRespuesta())) {
 				rta = "ERROR:"+res.getTrazaExcepcion();

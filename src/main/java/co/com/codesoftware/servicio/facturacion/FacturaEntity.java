@@ -40,10 +40,13 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *         &lt;element name="idVaucher" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="naturaleza" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="original" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
+ *         &lt;element name="resolucion" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
  *         &lt;element name="tarjeta" type="{http://www.w3.org/2001/XMLSchema}decimal" minOccurs="0"/>
  *         &lt;element name="tipoPago" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="valor" type="{http://www.w3.org/2001/XMLSchema}decimal" minOccurs="0"/>
+ *         &lt;element name="valorCobrar" type="{http://www.w3.org/2001/XMLSchema}decimal" minOccurs="0"/>
  *         &lt;element name="vlrIva" type="{http://www.w3.org/2001/XMLSchema}decimal" minOccurs="0"/>
+ *         &lt;element name="vlrReteFu" type="{http://www.w3.org/2001/XMLSchema}decimal" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -72,10 +75,13 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "idVaucher",
     "naturaleza",
     "original",
+    "resolucion",
     "tarjeta",
     "tipoPago",
     "valor",
-    "vlrIva"
+    "valorCobrar",
+    "vlrIva",
+    "vlrReteFu"
 })
 public class FacturaEntity {
 
@@ -101,10 +107,13 @@ public class FacturaEntity {
     protected String idVaucher;
     protected String naturaleza;
     protected Integer original;
+    protected Integer resolucion;
     protected BigDecimal tarjeta;
     protected String tipoPago;
     protected BigDecimal valor;
+    protected BigDecimal valorCobrar;
     protected BigDecimal vlrIva;
+    protected BigDecimal vlrReteFu;
 
     /**
      * Obtiene el valor de la propiedad cliente.
@@ -549,6 +558,30 @@ public class FacturaEntity {
     }
 
     /**
+     * Obtiene el valor de la propiedad resolucion.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Integer }
+     *     
+     */
+    public Integer getResolucion() {
+        return resolucion;
+    }
+
+    /**
+     * Define el valor de la propiedad resolucion.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Integer }
+     *     
+     */
+    public void setResolucion(Integer value) {
+        this.resolucion = value;
+    }
+
+    /**
      * Obtiene el valor de la propiedad tarjeta.
      * 
      * @return
@@ -621,6 +654,30 @@ public class FacturaEntity {
     }
 
     /**
+     * Obtiene el valor de la propiedad valorCobrar.
+     * 
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public BigDecimal getValorCobrar() {
+        return valorCobrar;
+    }
+
+    /**
+     * Define el valor de la propiedad valorCobrar.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public void setValorCobrar(BigDecimal value) {
+        this.valorCobrar = value;
+    }
+
+    /**
      * Obtiene el valor de la propiedad vlrIva.
      * 
      * @return
@@ -642,6 +699,30 @@ public class FacturaEntity {
      */
     public void setVlrIva(BigDecimal value) {
         this.vlrIva = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad vlrReteFu.
+     * 
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public BigDecimal getVlrReteFu() {
+        return vlrReteFu;
+    }
+
+    /**
+     * Define el valor de la propiedad vlrReteFu.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public void setVlrReteFu(BigDecimal value) {
+        this.vlrReteFu = value;
     }
 
 }

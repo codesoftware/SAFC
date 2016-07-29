@@ -79,7 +79,7 @@ public class FacturacionBean implements Serializable {
 	private String codigoAddLs;
 	// Variables utilizadas para la realizacion de pagos con tarjeta
 	private String tipoPago;
-	private BigDecimal pagoEfectivo;
+	private BigDecimal pagoTarjeta;
 	private String idVoucher;
 
 	public Integer getIdPedido() {
@@ -283,10 +283,10 @@ public class FacturacionBean implements Serializable {
 	 */
 
 	public void facturar() {
-		if("T".equalsIgnoreCase(this.tipoPago)){
+		if ("T".equalsIgnoreCase(this.tipoPago)) {
 			this.totalCliente = this.total;
-		}else if("M".equalsIgnoreCase(this.tipoPago)){
-			this.totalCliente = this.totalCliente.add(this.pagoEfectivo);
+		} else if ("M".equalsIgnoreCase(this.tipoPago)) {
+			this.totalCliente = this.totalCliente.add(this.pagoTarjeta);
 		}
 		int res = total.compareTo(totalCliente);
 		if (res == 0 || res == -1) {
@@ -301,10 +301,10 @@ public class FacturacionBean implements Serializable {
 	 * metodo que ejecuta la facturacion sin imprimir el pdf
 	 */
 	public void registrar() {
-		if("T".equalsIgnoreCase(this.tipoPago)){
+		if ("T".equalsIgnoreCase(this.tipoPago)) {
 			this.totalCliente = this.total;
-		}else if("M".equalsIgnoreCase(this.tipoPago)){
-			this.totalCliente = this.totalCliente.add(this.pagoEfectivo);
+		} else if ("M".equalsIgnoreCase(this.tipoPago)) {
+			this.totalCliente = this.totalCliente.add(this.pagoTarjeta);
 		}
 		// Realizo validacion del precio
 		int res = total.compareTo(totalCliente);
@@ -579,7 +579,7 @@ public class FacturacionBean implements Serializable {
 			// type, this.totalChange.toString(), this.totalCliente.toString(),
 			// this.summary);
 			String rta = logic.facturarAvanzada(this.listProd, UsuarioToFacturacionMp.clienteEntityMp(this.clientebean.getCliente()), realPath, this.entitySession, type, this.totalChange.toString(), this.totalCliente.toString(), this.summary,
-					this.idPedido, this.aplicaRetencion);
+					this.idPedido, this.aplicaRetencion, this.tipoPago, this.idVoucher, this.pagoTarjeta);
 			boolean valida = rta.contains("ERROR");
 			if (!valida) {
 				if ("1".equalsIgnoreCase(type)) {
@@ -752,31 +752,34 @@ public class FacturacionBean implements Serializable {
 			this.totalChange = new BigDecimal(0);
 		}
 	}
+
 	/**
-	 * Funcion con la cual se validan los datos que se deben tener cuando se paga con tarjeta
+	 * Funcion con la cual se validan los datos que se deben tener cuando se
+	 * paga con tarjeta
+	 * 
 	 * @return
 	 */
-	public boolean validaDatosCredito(){
+	public boolean validaDatosCredito() {
 		try {
-			if("E".equalsIgnoreCase(this.tipoPago)){
-				
-			}else if("T".equalsIgnoreCase(this.tipoPago)){
-				if("".equalsIgnoreCase(this.idVoucher)){
+			if ("E".equalsIgnoreCase(this.tipoPago)) {
+
+			} else if ("T".equalsIgnoreCase(this.tipoPago)) {
+				if ("".equalsIgnoreCase(this.idVoucher)) {
 					this.setEnumer(ErrorEnum.ERROR);
 					messageBean("Los pagos con Tarjeta deben referenciar un id de vaucher");
 					return false;
 				}
-			}else if("M".equalsIgnoreCase(this.tipoPago)){
-				if("".equalsIgnoreCase(this.idVoucher)){
+			} else if ("M".equalsIgnoreCase(this.tipoPago)) {
+				if ("".equalsIgnoreCase(this.idVoucher)) {
 					this.setEnumer(ErrorEnum.ERROR);
 					messageBean("Los pagos Mixtos deben referenciar un id de vaucher");
 					return false;
 				}
-				if(this.pagoEfectivo == null){
+				if (this.pagoTarjeta == null) {
 					this.setEnumer(ErrorEnum.ERROR);
 					messageBean("En el pago mixto no puede ser nulo ");
-				}else{
-					if(this.pagoEfectivo.compareTo(new BigDecimal(0))==0 ){
+				} else {
+					if (this.pagoTarjeta.compareTo(new BigDecimal(0)) == 0) {
 						this.setEnumer(ErrorEnum.ERROR);
 						messageBean("El campo de pago en efectivo no puede ser cero ");
 					}
@@ -796,13 +799,16 @@ public class FacturacionBean implements Serializable {
 
 	public void viewTotalPrice() {
 		boolean valida = this.validaDatosCredito();
-		if(valida){
+		if (valida) {
 			FacturacionLogic logic = new FacturacionLogic();
 			// valida si no hay productos o si el cliente esta nulo;
 			String validate = logic.validaDatos(this.listProd, UsuarioToFacturacionMp.clienteEntityMp(clientebean.getCliente()), this.summary);
 			if ("Ok".equalsIgnoreCase(validate)) {
 				BigDecimal baseIva = total.divide(new BigDecimal("1.16"), 8, RoundingMode.HALF_UP);
 				RequestContext context = RequestContext.getCurrentInstance();
+				if("M".equalsIgnoreCase(tipoPago) || "T".equalsIgnoreCase(tipoPago) ){
+					this.totalCliente = this.total;
+				}
 				if (baseIva.compareTo(new BigDecimal("803000")) >= 0) {
 					context.execute("PF('viewRetencion').show();");
 				} else {
@@ -1083,20 +1089,20 @@ public class FacturacionBean implements Serializable {
 		this.tipoPago = tipoPago;
 	}
 
-	public BigDecimal getPagoEfectivo() {
-		return pagoEfectivo;
-	}
-
-	public void setPagoEfectivo(BigDecimal pagoEfectivo) {
-		this.pagoEfectivo = pagoEfectivo;
-	}
-
 	public String getIdVoucher() {
 		return idVoucher;
 	}
 
 	public void setIdVoucher(String idVoucher) {
 		this.idVoucher = idVoucher;
+	}
+
+	public BigDecimal getPagoTarjeta() {
+		return pagoTarjeta;
+	}
+
+	public void setPagoTarjeta(BigDecimal pagoTarjeta) {
+		this.pagoTarjeta = pagoTarjeta;
 	}
 
 }

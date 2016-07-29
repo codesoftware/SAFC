@@ -3,26 +3,25 @@ package co.com.codesoftware.servicio.facturacion;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
- * <p>Clase Java para obtenerFacturasSede complex type.
+ * <p>Clase Java para obtenerFacturasCompraTmp complex type.
  * 
  * <p>El siguiente fragmento de esquema especifica el contenido que se espera que haya en esta clase.
  * 
  * <pre>
- * &lt;complexType name="obtenerFacturasSede">
+ * &lt;complexType name="obtenerFacturasCompraTmp">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="fInicial" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>
- *         &lt;element name="fFinal" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>
- *         &lt;element name="idSede" type="{http://www.w3.org/2001/XMLSchema}int"/>
- *         &lt;element name="estado" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="estado" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="fInicial" type="{http://www.w3.org/2001/XMLSchema}dateTime" minOccurs="0"/>
+ *         &lt;element name="fFinal" type="{http://www.w3.org/2001/XMLSchema}dateTime" minOccurs="0"/>
+ *         &lt;element name="idSede" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -32,23 +31,44 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "obtenerFacturasSede", propOrder = {
+@XmlType(name = "obtenerFacturasCompraTmp", propOrder = {
+    "estado",
     "fInicial",
     "fFinal",
-    "idSede",
-    "estado"
+    "idSede"
 })
-public class ObtenerFacturasSede {
+public class ObtenerFacturasCompraTmp {
 
-    @XmlElement(required = true)
+    protected String estado;
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar fInicial;
-    @XmlElement(required = true)
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar fFinal;
-    protected int idSede;
-    @XmlElement(required = true)
-    protected String estado;
+    protected Integer idSede;
+
+    /**
+     * Obtiene el valor de la propiedad estado.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getEstado() {
+        return estado;
+    }
+
+    /**
+     * Define el valor de la propiedad estado.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setEstado(String value) {
+        this.estado = value;
+    }
 
     /**
      * Obtiene el valor de la propiedad fInicial.
@@ -101,41 +121,25 @@ public class ObtenerFacturasSede {
     /**
      * Obtiene el valor de la propiedad idSede.
      * 
+     * @return
+     *     possible object is
+     *     {@link Integer }
+     *     
      */
-    public int getIdSede() {
+    public Integer getIdSede() {
         return idSede;
     }
 
     /**
      * Define el valor de la propiedad idSede.
      * 
-     */
-    public void setIdSede(int value) {
-        this.idSede = value;
-    }
-
-    /**
-     * Obtiene el valor de la propiedad estado.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getEstado() {
-        return estado;
-    }
-
-    /**
-     * Define el valor de la propiedad estado.
-     * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link Integer }
      *     
      */
-    public void setEstado(String value) {
-        this.estado = value;
+    public void setIdSede(Integer value) {
+        this.idSede = value;
     }
 
 }

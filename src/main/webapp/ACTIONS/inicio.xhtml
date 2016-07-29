@@ -39,14 +39,14 @@
 				
 				function cambiaTipoPago(valor){
 					if(valor == 'M'){
-						document.getElementById('pagoMixto').style.display = '';
-						document.getElementById('divVoucher').style.display = '';
+						document.getElementById('pagoMixto').style.visibility  = 'visible';
+						document.getElementById('divVoucher').style.visibility = 'visible';
 					}else if(valor == 'E'){
-						document.getElementById('pagoMixto').style.display = 'none';
-						document.getElementById('divVoucher').style.display = 'none';
+						document.getElementById('pagoMixto').style.visibility   = 'hidden';
+						document.getElementById('divVoucher').style.visibility  = 'hidden';
 					}else{
-						document.getElementById('pagoMixto').style.display = 'none';
-						document.getElementById('divVoucher').style.display = '';
+						document.getElementById('pagoMixto').style.visibility = 'hidden';
+						document.getElementById('divVoucher').style.visibility = 'visible';
 					}
 				}
 			</script>
@@ -266,10 +266,10 @@
 								</p:inputText>
 							</div>
 						</div>
-						<div class="col-md-6 col-xs-12 col-sm-12">
-							<div class="form-group">
-								<p:outputLabel value="Tipo de Pago" style="width:130px;text-align:right;" />
-								<h:selectOneMenu value="#{facturacionBean.tipoPago}" styleClass="form-control" style="width:50%" onchange="cambiaTipoPago(this.value)">
+						<div class="col-md-6 col-xs-12 col-sm-12 form-inline">
+							<div class="form-group" style="width:100%">
+								<p:outputLabel value="Tipo de Pago: &nbsp;&nbsp;" style="width:130px;text-align:right;" />
+								<h:selectOneMenu value="#{facturacionBean.tipoPago}" styleClass="form-control" style="width:60%" onchange="cambiaTipoPago(this.value)">
 									<f:selectItem itemValue="E" itemLabel="EFECTIVO" />
 									<f:selectItem itemValue="T" itemLabel="TARJETA" />
 									<f:selectItem itemValue="M" itemLabel="MIXTO" />
@@ -277,47 +277,46 @@
 							</div>
 						</div>
 						<div class="col-md-3 col-xs-6 col-sm-6">
-							<div class="form-group" style="display: none;" id="divVoucher">
+							<div class="form-group" style="visibility: hidden;" id="divVoucher">
 								<p:outputLabel value="ID VOUCHER" style="width:130px;text-align:right;" />
 								<p:inputText value="#{facturacionBean.idVoucher}"></p:inputText>
 							</div>
 						</div>
 						<div class="col-md-3 col-xs-6 col-sm-6">
-							<div class="form-group" style="display: none;" id="pagoMixto">
+							<div class="form-group" style="visibility: hidden;" id="pagoMixto">
 								<p:outputLabel value="PAGO EFECTIVO" style="width:130px;text-align:right;" />
-								<pe:inputNumber value="#{facturacionBean.pagoEfectivo}" decimalPlaces="2" symbol="$"></pe:inputNumber>
+								<pe:inputNumber value="#{facturacionBean.pagoTarjeta}" decimalPlaces="2" symbol="$"></pe:inputNumber>
 							</div>
 						</div>
-						<div class="col-md-2 col-xs-12 col-sm-12 oculto" style="display: none;">
+						<div class="col-md-4 col-xs-12 col-sm-12 oculto" style="display: none;">
 							<div class="form-group">
 								<p:outputLabel value="#{facturacionBean.product.code}" id="codProdBusq" />
 							</div>
 						</div>
-						<div class="col-md-3 col-xs-12 col-sm-12 oculto" style="display: none;">
+						<div class="col-md-4 col-xs-12 col-sm-12 oculto" style="display: none;">
 							<div class="form-group">
 								<p:outputLabel value="#{facturacionBean.product.name}" id="nomProdBusq" />
 							</div>
 						</div>
-						<div class="col-md-3 col-xs-12 col-sm-12 oculto" style="display: none;">
+						<div class="col-md-4 col-xs-12 col-sm-12 oculto" style="display: none;">
 							<div class="form-group">
 								<h:outputText value="$" />
-								&nbsp;
 								<p:outputLabel value="#{facturacionBean.product.price}" id="precProdBusq">
 									<f:convertNumber pattern="#,##0.00"></f:convertNumber>
 								</p:outputLabel>
 							</div>
 						</div>
 					</h:panelGroup>
-					<p:panel header="Factura">
-						<p:commandLink ajax="true" update="formHeader:tablaClienteComprador" actionListener="#{facturacionBean.viewTotalPrice}">
+					<p:panel>
+						<p:commandLink ajax="true" update=":formHeader:tablaClienteComprador,:viewPrice:priceTotal" actionListener="#{facturacionBean.viewTotalPrice}" title="Iniciar a Generar Factura">
 							<p:graphicImage library="images" name="bill.png" width="40" height="40" />
 						</p:commandLink>
 						<p:spacer width="300" height="0" />
 						<p:spacer width="100" height="0" />
-						<p:commandLink actionListener="#{facturacionBean.resetValuesBill}" ajax="true" update="formInicio:listFact,formHeader:total,viewPrice:totalSum">
+						<p:commandLink actionListener="#{facturacionBean.resetValuesBill}" ajax="true" update="formInicio:listFact,formHeader:total,viewPrice:totalSum" title="Reiniciar Factura">
 							<p:graphicImage library="images" name="nobill.png" width="40" height="40" />
 						</p:commandLink>
-						<p:commandLink actionListener="#{facturacionBean.resetValuesClient}" ajax="true" update="formHeader:tablaClienteComprador">
+						<p:commandLink actionListener="#{facturacionBean.resetValuesClient}" ajax="true" update="formHeader:tablaClienteComprador" title="Eliminar Cliente">
 							<p:graphicImage library="images" name="noclient.png" width="40" height="40" />
 						</p:commandLink>
 						<p:dataTable var="factura" style="pading:0px;" id="listFact" value="#{facturacionBean.listProd}">
